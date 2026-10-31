@@ -3,7 +3,8 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, maximum-scale=1">
-<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<link rel="icon" type="image/svg+xml" href="favicon.svg">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <meta name="theme-color" content="#E2552F">
 <link rel="manifest" href="manifest.json">
@@ -640,7 +641,7 @@ function render(){
   if (!arrastando) $("#scrub").value = t;
   marcarAtual(t);
 }
-let arrastando = false, loopOn = false;
+let arrastando = false, loopOn = false, gravando = false;
 function loop(){ render(); if (!vid.paused || gravando) requestAnimationFrame(loop); else loopOn = false; }
 function iniciarLoop(){ if (!loopOn){ loopOn = true; requestAnimationFrame(loop); } }
 
@@ -1111,7 +1112,7 @@ function aplicarEstiloUI(){ $("#tamLeg").value = S.estilo.tamLeg; $("#posLeg").v
 const MIMES = ["video/mp4;codecs=avc1.640028,mp4a.40.2","video/mp4;codecs=avc1.42E01F,mp4a.40.2","video/mp4","video/webm;codecs=vp9,opus","video/webm;codecs=vp8,opus","video/webm"];
 const MIME = MIMES.find(m => window.MediaRecorder && MediaRecorder.isTypeSupported(m)) || "";
 $("#statusE").textContent = MIME ? `Formato de saída: ${MIME.startsWith("video/mp4") ? "MP4 (pronto para Instagram)" : "WebM (converta para MP4 antes de publicar)"}` : "Este navegador não grava vídeo. Use Chrome ou Edge atualizados.";
-let gravando = false, audioCtx, audioDest;
+let audioCtx, audioDest;
 $("#exportar").onclick = async () => {
   if (!MIME) return;
   const btn = $("#exportar"), st = $("#statusE"), barra = $("#barraE");
