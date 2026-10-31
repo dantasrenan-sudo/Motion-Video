@@ -325,7 +325,13 @@ const TEMAS = {
   "marinho-dourado": {nome:"Marinho e dourado", card:"rgba(27,46,70,0.88)", borda:"rgba(207,178,119,0.22)", cor:"#CFB277", rotulo:"#E8E8EA", contorno:"#000000"},
   "grafite-coral":   {nome:"Grafite e coral",   card:"rgba(28,28,32,0.90)", borda:"rgba(255,107,87,0.38)", cor:"#FF6B57", rotulo:"#F4F1EE", contorno:"#000000"},
   "petroleo-lima":   {nome:"Petróleo e lima",   card:"rgba(10,61,66,0.90)", borda:"rgba(200,240,90,0.32)", cor:"#C8F05A", rotulo:"#EAF5F2", contorno:"#062628"},
-  "claro-eletrico":  {nome:"Claro e elétrico",  card:"rgba(255,255,255,0.94)", borda:"rgba(37,99,255,0.28)", cor:"#2563FF", rotulo:"#14213D", contorno:"#0B1530"}
+  "claro-eletrico":  {nome:"Claro e elétrico",  card:"rgba(255,255,255,0.94)", borda:"rgba(37,99,255,0.28)", cor:"#2563FF", rotulo:"#14213D", contorno:"#0B1530"},
+  "roxo-neon":       {nome:"Roxo neon",         card:"rgba(45,20,70,0.92)", borda:"rgba(180,100,255,0.35)", cor:"#B464FF", rotulo:"#F0E8FF", contorno:"#1A0A2E"},
+  "verde-menta":     {nome:"Verde menta",       card:"rgba(20,60,50,0.90)", borda:"rgba(100,220,180,0.30)", cor:"#64DCB4", rotulo:"#E8FFF6", contorno:"#0A2820"},
+  "laranja-quente":  {nome:"Laranja quente",    card:"rgba(50,25,15,0.92)", borda:"rgba(255,140,50,0.35)", cor:"#FF8C32", rotulo:"#FFF5E8", contorno:"#1A0A00"},
+  "azul-gelo":       {nome:"Azul gelo",         card:"rgba(230,240,250,0.95)", borda:"rgba(70,130,200,0.25)", cor:"#4682C8", rotulo:"#1A3050", contorno:"#0A1525"},
+  "rosa-moderno":    {nome:"Rosa moderno",      card:"rgba(60,30,45,0.90)", borda:"rgba(255,100,150,0.35)", cor:"#FF6496", rotulo:"#FFE8F0", contorno:"#200A14"},
+  "preto-ouro":      {nome:"Preto e ouro",      card:"rgba(15,15,15,0.95)", borda:"rgba(220,180,80,0.40)", cor:"#DCB450", rotulo:"#F5F0E0", contorno:"#000000"}
 };
 const S = {
   legendas: [], cards: [], palavras: [],
@@ -370,7 +376,17 @@ const ICONES = {
   estrela:"M24 5l5.6 12.2 13.4 1.5-10 9 2.9 13.2L24 34.2 12.1 40.9 15 27.7 5 18.7l13.4-1.5z",
   caminhao:"M4 12h24v20H4zM28 19h9l7 7v6H28zM4 32h40"+C(12,35,4)+C(36,35,4),
   hospital:"M8 8h32v34H8zM24 15v14M17 22h14",
-  martelo:"M30 6l12 12-5 5-12-12zM27 15L8 34a3 3 0 0 0 4 4l19-19"
+  martelo:"M30 6l12 12-5 5-12-12zM27 15L8 34a3 3 0 0 0 4 4l19-19",
+  // Novos ícones para seguros
+  guarda:"M24 8a6 6 0 1 0 0 12 6 6 0 0 0 0-12zM12 26c0-6 5-8 12-8s12 2 12 8v14H12z",
+  sino:"M24 6v3M24 42v2M12 36h24M15 36V20a9 9 0 0 1 18 0v16",
+  folha:"M24 42V24M24 24c-8-8-16 0-16-12 8 0 16 4 16 12zM24 24c8-8 16 0 16-12-8 0-16 4-16 12z",
+  cofre:"M8 12h32v28H8zM16 26h16M24 22v8M4 16v20M44 16v20",
+  contrato:"M10 6h20l8 8v28H10zM30 6v8h8M16 20h16M16 28h16M16 36h10",
+  familia:"M16 14a5 5 0 1 0 0 10 5 5 0 0 0 0-10zM32 14a5 5 0 1 0 0 10 5 5 0 0 0 0-10zM8 38c0-5 4-8 8-8h0c2 3 6 3 8 0h0c4 0 8 3 8 8M24 38c0-5 4-8 8-8s8 3 8 8",
+  medalha:"M24 6l4 8 9 1-6 6 1 9-8-4-8 4 1-9-6-6 9-1zM18 30l-4 12 10-6 10 6-4-12",
+  ampulheta:"M14 6h20v4c0 8-5 12-10 14 5 2 10 6 10 14v4H14v-4c0-8 5-12 10-14-5-2-10-6-10-14z",
+  bandeira:"M12 6v36M12 6h22l-6 9 6 9H12"
 };
 const P2D = {}; for (const k in ICONES) P2D[k] = new Path2D(ICONES[k]);
 function icone(ctx, nome, x, y, tam, cor){
@@ -527,16 +543,42 @@ function iniciarLoop(){ if (!loopOn){ loopOn = true; requestAnimationFrame(loop)
 /* ===================== Vídeo ===================== */
 $("#arqVideo").onchange = e => {
   const f = e.target.files[0]; if (!f) return;
+  console.log("[Motion] Carregando vídeo:", f.name, f.size);
+  $("#infoVideo").textContent = "Carregando vídeo..."; $("#infoVideo").className = "status";
   S.nomeVideo = f.name.replace(/\.[^.]+$/, "");
-  vid.src = URL.createObjectURL(f); vid.load();
+
+  try {
+    vid.src = URL.createObjectURL(f);
+    vid.load();
+  } catch(err) {
+    console.error("[Motion] Erro ao criar URL:", err);
+    $("#infoVideo").textContent = "Erro ao carregar vídeo: " + err.message;
+    $("#infoVideo").className = "status bad";
+    return;
+  }
+
+  vid.onerror = () => {
+    console.error("[Motion] Erro no vídeo:", vid.error);
+    $("#infoVideo").textContent = "Erro: formato de vídeo não suportado. Use MP4 ou WebM.";
+    $("#infoVideo").className = "status bad";
+  };
+
   vid.onloadedmetadata = () => {
+    console.log("[Motion] Metadados carregados:", vid.videoWidth, "x", vid.videoHeight, vid.duration + "s");
     S.duracao = vid.duration; $("#scrub").max = vid.duration;
     $("#vazio").style.display = "none";
     ["#play","#scrub","#transcrever","#exportar"].forEach(s => $(s).disabled = false);
-    $("#infoVideo").textContent = `${f.name}\n${vid.videoWidth}×${vid.videoHeight} · ${fmt(vid.duration)} s · ${(f.size/1048576).toFixed(1)} MB` +
-      (vid.videoWidth < 900 ? "\nAtenção: resolução baixa. O resultado final pode ficar borrado; prefira o arquivo original do celular." : "");
-    $("#infoVideo").className = "status ok"; $("#statusT").textContent = "Pronto para transcrever.";
+    $("#infoVideo").textContent = `✓ ${f.name}\n${vid.videoWidth}×${vid.videoHeight} · ${fmt(vid.duration)} s · ${(f.size/1048576).toFixed(1)} MB` +
+      (vid.videoWidth < 900 ? "\n⚠️ Resolução baixa. Prefira o arquivo original." : "");
+    $("#infoVideo").className = "status ok";
+    $("#statusT").textContent = "✓ Vídeo pronto! Clique em Transcrever para continuar.";
+    $("#statusT").className = "status ok";
     vid.currentTime = 0.01;
+
+    // Avança para próxima aba automaticamente após 1s
+    setTimeout(() => {
+      if(!$("#modoCompacto").checked) $('[data-a="a2"]').click();
+    }, 800);
   };
   vid.onseeked = render;
 };
@@ -559,9 +601,17 @@ let asr = null, modeloCarregado = "";
 $("#transcrever").onclick = async () => {
   const st = $("#statusT"), barra = $("#barraT"), btn = $("#transcrever");
   btn.disabled = true; st.className = "status";
+  console.log("[Motion] Iniciando transcrição...");
+
   try{
-    if ($("#motor").value === "nuvem"){ await transcreverNuvem(st, barra); btn.disabled = false; return; }
-    st.textContent = "Carregando biblioteca de IA…";
+    if ($("#motor").value === "nuvem"){
+      console.log("[Motion] Usando motor nuvem");
+      await transcreverNuvem(st, barra);
+      btn.disabled = false;
+      return;
+    }
+    st.textContent = "⏳ Passo 1/4: Carregando biblioteca de IA…";
+    barra.style.width = "10%";
     const { pipeline, env } = await bibliotecaIA();
     const modelo = $("#modelo").value;
     if (!asr || modeloCarregado !== modelo){
@@ -581,9 +631,12 @@ $("#transcrever").onclick = async () => {
       });
       modeloCarregado = modelo;
     }
-    st.textContent = "Extraindo áudio…"; barra.style.width = "100%";
+    st.textContent = "⏳ Passo 3/4: Extraindo áudio do vídeo…"; barra.style.width = "60%";
+    console.log("[Motion] Extraindo áudio...");
     const audio = await audio16k();
-    st.textContent = `Transcrevendo ${fmt(audio.length/16000)} s de áudio… (pode levar alguns minutos; a página pode parecer travada)`;
+    console.log("[Motion] Áudio extraído:", (audio.length/16000).toFixed(1), "segundos");
+    st.textContent = `⏳ Passo 4/4: Transcrevendo ${fmt(audio.length/16000)} s de áudio…\n\n💡 Isso pode levar alguns minutos. Não feche a janela.`;
+    barra.style.width = "70%";
     await new Promise(r => setTimeout(r, 60));
     let out, palavras = [];
     try{
@@ -735,47 +788,70 @@ document.querySelectorAll("[data-novo]").forEach(b => b.onclick = () => { S.card
 /* ===================== Sugestões automáticas ===================== */
 function analisarTranscricao(){
   const sug = [];
-  const texto = S.legendas.map(l => ({t0:l.t0, t1:l.t1, txt:l.texto.replace(/\n/g," ")}));
+  const texto = S.legendas.map(l => ({t0:l.t0, t1:l.t1, txt:l.texto.replace(/\n/g," ").toLowerCase()}));
+  const usado = new Set();
 
-  // Detectar números (15 dias, 30%, R$ 500, 3 anos, etc.)
-  const reNum = /(\d+[\d.,]*)\s*(dias?|anos?|meses?|%|reais?|r\$|horas?|minutos?|vezes|parcelas?)/gi;
+  // Detectar números (15 dias, 30%, R$ 500, etc.)
+  const reNum = /(\d+[\d.,]*)\s*(dias?|anos?|meses?|%|reais?|r\$|horas?|minutos?|vezes|parcelas?|quilômetros?|km)/gi;
   texto.forEach(l => {
-    let m; while((m = reNum.exec(l.txt)) !== null){
+    let m; const re = new RegExp(reNum.source, "gi");
+    while((m = re.exec(l.txt)) !== null){
+      const chave = `num-${Math.floor(l.t0/5)}`;
+      if(usado.has(chave)) continue; usado.add(chave);
       const valor = m[1], unidade = m[2].toLowerCase();
-      const icone = unidade.includes("dia") || unidade.includes("hora") || unidade.includes("ano") || unidade.includes("mes") ? "relogio" :
-                    unidade.includes("%") ? "porcentagem" : "dinheiro";
-      sug.push({tipo:"numero", t0:l.t0, t1:l.t1+2, icone, valor, sufixo:" "+m[2], rotulo:"", preview:`${valor} ${m[2]}`, conf:"alta"});
+      const icone = unidade.includes("dia")||unidade.includes("hora")||unidade.includes("ano")||unidade.includes("mes") ? "relogio" :
+                    unidade.includes("%") ? "porcentagem" : unidade.includes("km") ? "rodovia" : "dinheiro";
+      sug.push({tipo:"numero", t0:l.t0, t1:Math.min(l.t1+2, S.duracao), icone, valor, sufixo:" "+m[2], rotulo:"", preview:`${valor} ${m[2]}`, conf:"alta"});
     }
   });
 
-  // Detectar relações (direito a, não tem direito, causa, gera, resulta)
-  const reRel = /(não\s+)?(tem|dá|gera|causa|resulta|garante|cobre)\s+(direito\s+a|acesso\s+a|cobertura|indenização)/gi;
+  // Detectar termos de seguros
+  const TERMOS = [
+    {re:/apólice|contrato\s+de\s+seguro/i, iconeA:"contrato", iconeB:"escudo-ok", rotuloA:"Apólice", rotuloB:"Proteção"},
+    {re:/sinistro|acidente|colisão/i, iconeA:"carro-x", iconeB:"dinheiro", rotuloA:"Sinistro", rotuloB:"Indenização"},
+    {re:/franquia/i, iconeA:"dinheiro", iconeB:"carro", rotuloA:"Franquia", rotuloB:"Reparo"},
+    {re:/cobertura|coberto|cobre/i, iconeA:"escudo-ok", iconeB:"check", rotuloA:"Cobertura", rotuloB:"Garantido"},
+    {re:/guincho|reboque|assistência/i, iconeA:"caminhao", iconeB:"check", rotuloA:"Assistência", rotuloB:"Incluso"},
+    {re:/roubo|furto/i, iconeA:"cadeado", iconeB:"dinheiro", rotuloA:"Roubo/Furto", rotuloB:"Indenização"},
+    {re:/terceiros/i, iconeA:"pessoa", iconeB:"escudo-ok", rotuloA:"Terceiros", rotuloB:"Proteção"},
+    {re:/carro\s+reserva/i, iconeA:"carro", iconeB:"check", rotuloA:"Carro reserva", rotuloB:"Disponível"},
+    {re:/prazo|vencimento/i, iconeA:"calendario", iconeB:"alerta", rotuloA:"Prazo", rotuloB:"Atenção"},
+    {re:/bônus|desconto/i, iconeA:"estrela", iconeB:"porcentagem", rotuloA:"Bônus", rotuloB:"Desconto"}
+  ];
   texto.forEach(l => {
-    if(reRel.test(l.txt)){
-      const nega = /não\s+(tem|dá|gera)/i.test(l.txt);
-      sug.push({tipo:"relacao", t0:l.t0, t1:l.t1+2, relacao:nega?"nega":"seta",
-        rotuloA:"Situação", rotuloB:nega?"Sem direito":"Com direito",
-        iconeA:"doc-ok", iconeB:nega?"x":"check", preview:l.txt.slice(0,50)+"...", conf:"media"});
-    }
+    TERMOS.forEach(termo => {
+      if(termo.re.test(l.txt)){
+        const chave = `rel-${termo.rotuloA}-${Math.floor(l.t0/8)}`;
+        if(usado.has(chave)) return; usado.add(chave);
+        const nega = /não\s+(tem|dá|gera|cobre|inclui)/i.test(l.txt);
+        sug.push({tipo:"relacao", t0:l.t0, t1:Math.min(l.t1+3, S.duracao), relacao:nega?"nega":"seta",
+          iconeA:termo.iconeA, rotuloA:termo.rotuloA, iconeB:nega?"x":termo.iconeB, rotuloB:nega?"Não cobre":termo.rotuloB,
+          td:+(l.t0+1.5).toFixed(2), preview:l.txt.slice(0,45)+"...", conf:"alta"});
+      }
+    });
   });
 
-  // Detectar alertas (atenção, cuidado, importante, lembre-se)
-  const reAlert = /(atenção|cuidado|importante|lembre-se|não\s+esqueça|fique\s+atento)/gi;
+  // Detectar alertas
+  const reAlert = /(atenção|cuidado|importante|lembre-se|não\s+esqueça|fique\s+atento|aviso|dica)/gi;
   texto.forEach(l => {
     if(reAlert.test(l.txt)){
-      sug.push({tipo:"alerta", t0:l.t0, t1:l.t1+2, icone:"alerta", texto:l.txt.slice(0,40), preview:l.txt.slice(0,50)+"...", conf:"alta"});
+      const chave = `alert-${Math.floor(l.t0/8)}`;
+      if(usado.has(chave)) return; usado.add(chave);
+      sug.push({tipo:"alerta", t0:l.t0, t1:Math.min(l.t1+2, S.duracao), icone:"alerta", texto:l.txt.slice(0,40), preview:l.txt.slice(0,45)+"...", conf:"alta"});
     }
   });
 
-  // Detectar listas (primeiro, segundo, três coisas, etc.)
-  const reLista = /(primeiro|segundo|terceiro|quarto|três\s+coisas|quatro\s+pontos|alguns\s+pontos)/gi;
+  // Detectar listas
+  const reLista = /(primeiro|segundo|terceiro|três\s+(coisas|tipos|pontos)|existem\s+\d+|são\s+\d+)/gi;
   texto.forEach(l => {
     if(reLista.test(l.txt)){
-      sug.push({tipo:"lista", t0:l.t0, t1:l.t1+4, titulo:"Pontos importantes", itens:["Item 1","Item 2","Item 3"], preview:l.txt.slice(0,50)+"...", conf:"media"});
+      const chave = `lista-${Math.floor(l.t0/10)}`;
+      if(usado.has(chave)) return; usado.add(chave);
+      sug.push({tipo:"lista", t0:l.t0, t1:Math.min(l.t1+5, S.duracao), titulo:"Pontos", icone:"check", itens:["Item 1","Item 2","Item 3"], preview:l.txt.slice(0,45)+"...", conf:"media"});
     }
   });
 
-  return sug.slice(0,10); // máximo 10 sugestões
+  return sug.sort((a,b) => a.t0 - b.t0).slice(0,15);
 }
 
 function listarSugestoes(){
