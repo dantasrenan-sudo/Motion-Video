@@ -79,6 +79,9 @@ textarea{width:100%;resize:vertical}
 .status{font-size:13px;padding:9px 12px;border-radius:9px;background:var(--soft);border:1px solid var(--line);margin-top:12px;white-space:pre-wrap}
 .status.ok{border-color:var(--ok);color:var(--ok)}
 .status.bad{border-color:var(--bad);color:var(--bad)}
+.status.loading{border-color:var(--accent);color:var(--accent);position:relative}
+.status.loading::before{content:"";display:inline-block;width:16px;height:16px;border:2px solid var(--accent);border-top-color:transparent;border-radius:50%;animation:spin 1s linear infinite;margin-right:8px;vertical-align:middle}
+@keyframes spin{to{transform:rotate(360deg)}}
 .barra{height:8px;background:var(--line);border-radius:5px;overflow:hidden;margin-top:8px}
 .barra i{display:block;height:100%;width:0;background:var(--accent);transition:width .2s}
 .lista{display:flex;flex-direction:column;gap:8px}
@@ -100,44 +103,81 @@ textarea{width:100%;resize:vertical}
 .manual li{margin-bottom:6px}
 .manual code{background:var(--soft);padding:1px 5px;border-radius:5px;font-size:13px}
 .kbd{font:12px ui-monospace,monospace;background:var(--soft);border:1px solid var(--line);border-radius:5px;padding:1px 6px}
+/* ===== MOBILE LAYOUT ===== */
 @media (max-width:880px){
-  .app{grid-template-columns:1fr;padding:8px;gap:8px}
-  .palco{position:static;max-width:100%;margin:0 auto;order:-1}
-  .tela{aspect-ratio:9/16;max-height:40vh;border-radius:10px}
-  .controles{padding:8px 0}
-  header{flex-wrap:wrap;padding:10px;gap:6px;position:sticky;top:0;z-index:100;background:var(--panel);border-bottom:1px solid var(--line)}
-  header h1{font-size:16px;flex:1}
+  html,body{height:auto;min-height:100%}
+  body{padding-bottom:env(safe-area-inset-bottom,20px)}
+
+  /* Header fixo */
+  header{position:fixed;top:0;left:0;right:0;z-index:1000;padding:8px 12px;gap:8px;background:var(--panel);border-bottom:1px solid var(--line)}
+  header h1{font-size:15px;flex:1;white-space:nowrap}
   header h1 span{display:none}
   header .sub{display:none}
-  header .btn{padding:8px 10px;font-size:13px}
-  .painel{border-radius:10px;min-height:auto}
-  nav.abas{display:flex;overflow-x:auto;-webkit-overflow-scrolling:touch;gap:0;padding:0;scrollbar-width:none}
+  header .btn{padding:6px 10px;font-size:12px;min-height:36px}
+
+  /* App com padding para header */
+  .app{display:flex;flex-direction:column;padding:60px 8px 8px;gap:8px;max-width:100%}
+
+  /* Preview do vídeo */
+  .palco{position:relative;width:100%;max-width:280px;margin:0 auto}
+  .tela{aspect-ratio:9/16;max-height:200px;border-radius:8px;box-shadow:0 4px 12px rgba(0,0,0,.2)}
+  .controles{padding:6px 0;gap:6px}
+  .controles button{min-height:36px;padding:6px 12px}
+  .tempo{font-size:11px;min-width:70px}
+
+  /* Painel de abas */
+  .painel{border-radius:8px;min-height:auto;flex:1}
+  nav.abas{display:flex;overflow-x:auto;-webkit-overflow-scrolling:touch;gap:0;padding:4px 4px 0;scrollbar-width:none;background:var(--soft)}
   nav.abas::-webkit-scrollbar{display:none}
-  nav.abas button{flex:0 0 auto;white-space:nowrap;padding:12px 14px;font-size:13px;border-radius:0}
-  nav.abas button b{width:18px;height:18px;font-size:11px;line-height:18px;margin-right:4px}
-  .aba{padding:14px}
-  .aba h2{font-size:18px}
-  .linha{flex-direction:column;gap:10px}
+  nav.abas button{flex:0 0 auto;white-space:nowrap;padding:10px 12px;font-size:12px;border-radius:6px 6px 0 0;min-height:auto}
+  nav.abas button b{width:16px;height:16px;font-size:10px;line-height:16px;margin-right:3px}
+
+  /* Conteúdo das abas */
+  .aba{padding:12px}
+  .aba h2{font-size:16px;margin-bottom:8px}
+  .aba h3{font-size:14px;margin:12px 0 6px}
+  p.d{font-size:12px;margin-bottom:10px}
+
+  /* Formulários */
+  .linha{flex-direction:column;gap:8px}
   .grid3{grid-template-columns:1fr}
-  button,.btn{min-height:48px;padding:12px 16px;font-size:15px;border-radius:10px}
-  input,select,textarea{min-height:48px;font-size:16px;border-radius:8px}
-  .item{grid-template-columns:1fr;gap:6px}
-  .item .t{flex-wrap:wrap}
-  .card-ed{padding:10px}
-  .card-ed .topo{flex-wrap:wrap;gap:6px}
-  .temas{grid-template-columns:1fr 1fr}
-  .tema{padding:10px}
-  .tema .amostra{height:40px;font-size:11px}
-  .status{font-size:12px;padding:10px}
-  p.d{font-size:13px}
-  details summary{padding:10px 0}
+  button,.btn{min-height:44px;padding:10px 14px;font-size:14px;border-radius:8px;width:100%}
+  input,select,textarea{min-height:44px;font-size:16px;border-radius:6px;width:100%}
+  label.f{font-size:12px}
+
+  /* Listas e cards */
+  .item{grid-template-columns:1fr;gap:4px;padding:6px}
+  .item .t{flex-wrap:wrap;font-size:11px}
+  .item .t input{width:50px;min-height:28px;font-size:12px}
+  .item textarea{min-height:40px;font-size:13px}
+  .card-ed{padding:8px}
+  .card-ed .topo{flex-wrap:wrap;gap:4px}
+
+  /* Temas */
+  .temas{grid-template-columns:repeat(2,1fr);gap:6px}
+  .tema{padding:8px}
+  .tema .amostra{height:32px;font-size:10px}
+
+  /* Status */
+  .status{font-size:11px;padding:8px;margin-top:8px}
+  .barra{height:6px;margin-top:6px}
+
+  /* Esconder elementos não essenciais */
+  .manual{font-size:13px}
+  details{font-size:13px}
 }
+
+/* ===== MOBILE PEQUENO ===== */
 @media (max-width:480px){
-  .app{padding:4px}
-  header h1{font-size:15px}
-  nav.abas button{padding:10px 10px;font-size:12px}
-  nav.abas button span{display:none}
-  .tela{max-height:35vh}
+  header{padding:6px 8px}
+  header h1{font-size:14px}
+  header .btn{display:none}
+  .app{padding:52px 6px 6px}
+  .palco{max-width:220px}
+  .tela{max-height:160px}
+  nav.abas button{padding:8px 8px;font-size:11px}
+  nav.abas button b{display:none}
+  .aba{padding:10px}
   .temas{grid-template-columns:1fr}
 }
 </style>
@@ -664,42 +704,62 @@ async function audio16k(){
 let asr = null, modeloCarregado = "";
 $("#transcrever").onclick = async () => {
   const st = $("#statusT"), barra = $("#barraT"), btn = $("#transcrever");
-  btn.disabled = true; st.className = "status";
+  btn.disabled = true;
+  btn.textContent = "⏳ Processando...";
+  st.className = "status loading";
+  st.textContent = "Iniciando transcrição...";
+  barra.style.width = "5%";
   console.log("[Motion] Iniciando transcrição...");
 
   try{
     if ($("#motor").value === "nuvem"){
       console.log("[Motion] Usando motor nuvem");
+      st.textContent = "Conectando ao servidor de transcrição...";
       await transcreverNuvem(st, barra);
       btn.disabled = false;
+      btn.textContent = "🎙️ Transcrever agora";
       return;
     }
-    st.textContent = "⏳ Passo 1/4: Carregando biblioteca de IA…";
+    st.className = "status loading";
+    st.textContent = "Passo 1/4: Carregando biblioteca de IA...";
     barra.style.width = "10%";
+    console.log("[Motion] Carregando biblioteca...");
     const { pipeline, env } = await bibliotecaIA();
+    console.log("[Motion] Biblioteca carregada");
     const modelo = $("#modelo").value;
     if (!asr || modeloCarregado !== modelo){
       const arq = {};
-      st.textContent = "Baixando modelo (só na primeira vez)…";
+      st.className = "status loading";
+      st.textContent = "Passo 2/4: Baixando modelo de IA (só na primeira vez)...";
+      barra.style.width = "20%";
+      console.log("[Motion] Baixando modelo:", modelo);
       asr = await pipeline("automatic-speech-recognition", modelo, {
         dtype: { encoder_model: "fp32", decoder_model_merged: "q4" },
         device: navigator.gpu ? "webgpu" : "wasm",
         progress_callback: p => {
           if (p.status === "progress" && p.total){ arq[p.file] = [p.loaded, p.total];
             const v = Object.values(arq), l = v.reduce((a,b)=>a+b[0],0), tt = v.reduce((a,b)=>a+b[1],0);
-            barra.style.width = (100*l/tt).toFixed(0) + "%"; st.textContent = `Baixando modelo… ${(l/1048576).toFixed(0)} de ${(tt/1048576).toFixed(0)} MB`; }
+            const pct = (100*l/tt).toFixed(0);
+            barra.style.width = pct + "%";
+            st.textContent = `Passo 2/4: Baixando modelo... ${(l/1048576).toFixed(0)} de ${(tt/1048576).toFixed(0)} MB (${pct}%)`; }
         }
       }).catch(async e => {
-        st.textContent = "WebGPU indisponível, usando processador…";
+        console.log("[Motion] WebGPU falhou, usando WASM");
+        st.textContent = "Passo 2/4: Usando processador (mais lento)...";
         return pipeline("automatic-speech-recognition", modelo, { device: "wasm" });
       });
       modeloCarregado = modelo;
     }
-    st.textContent = "⏳ Passo 3/4: Extraindo áudio do vídeo…"; barra.style.width = "60%";
+    st.className = "status loading";
+    st.textContent = "Passo 3/4: Extraindo áudio do vídeo...";
+    barra.style.width = "60%";
     console.log("[Motion] Extraindo áudio...");
     const audio = await audio16k();
-    console.log("[Motion] Áudio extraído:", (audio.length/16000).toFixed(1), "segundos");
-    st.textContent = `⏳ Passo 4/4: Transcrevendo ${fmt(audio.length/16000)} s de áudio…\n\n💡 Isso pode levar alguns minutos. Não feche a janela.`;
+    const durAudio = (audio.length/16000).toFixed(1);
+    console.log("[Motion] Áudio extraído:", durAudio, "segundos");
+
+    st.className = "status loading";
+    st.textContent = `Passo 4/4: Transcrevendo ${durAudio}s de áudio...\n\nIsso pode levar ${Math.ceil(durAudio/20)} minutos. Não feche a janela.`;
     barra.style.width = "70%";
     await new Promise(r => setTimeout(r, 60));
     let out, palavras = [];
@@ -716,12 +776,19 @@ $("#transcrever").onclick = async () => {
     aplicarGlossarioAuto();
     // Analisa sugestões de cartões
     listarSugestoes();
-    st.className = "status ok"; st.textContent = `Transcrição concluída: ${palavras.length} palavras, ${S.legendas.length} blocos. Correções de dicção aplicadas. Veja sugestões de cartões na aba 3.`;
+    barra.style.width = "100%";
+    st.className = "status ok";
+    st.textContent = `✓ Transcrição concluída!\n\n${palavras.length} palavras · ${S.legendas.length} blocos\nCorreções de dicção aplicadas.\n\n→ Clique na aba "Cartões" para ver sugestões automáticas.`;
     render();
+    console.log("[Motion] Transcrição concluída com sucesso");
   }catch(e){
-    st.className = "status bad"; st.textContent = "Falha na transcrição: " + (e.message||e) + "\nTente o modelo base, verifique a internet ou importe um SRT.";
+    console.error("[Motion] Erro na transcrição:", e);
+    st.className = "status bad";
+    st.textContent = "❌ Falha na transcrição: " + (e.message||e) + "\n\nSoluções:\n• Tente o modelo 'base' (mais leve)\n• Verifique a conexão com internet\n• Ou importe um arquivo SRT";
+    barra.style.width = "0%";
   }
   btn.disabled = false;
+  btn.textContent = "🎙️ Transcrever agora";
 };
 
 async function bibliotecaIA(){
