@@ -446,6 +446,9 @@ const S = {
 };
 let logoImg = null;
 const $ = s => document.querySelector(s);
+const $on = (s, ev, fn) => { const el = $(s); if(el) el[ev] = fn; };
+const $click = (s, fn) => $on(s, 'onclick', fn);
+const $change = (s, fn) => $on(s, 'onchange', fn);
 const fmt = t => (t||0).toFixed(2).replace(".", ",");
 const store = {get:k=>{try{return localStorage.getItem(k)}catch(e){return null}}, set:(k,v)=>{try{localStorage.setItem(k,v)}catch(e){}}};
 
@@ -879,7 +882,7 @@ franquiada = franquia
 coparticipação = co-participação
 casco = casco
 roubo = roubo/furto`;
-$("#glossario").value = store.get("em_glossario") || GLOSSARIO_SEGUROS;
+if($("#glossario")) $("#glossario").value = store.get("em_glossario") || GLOSSARIO_SEGUROS;
 
 $("#arqSrt").onchange = async e => {
   const f = e.target.files[0]; if (!f) return; const txt = await f.text();
@@ -1055,7 +1058,7 @@ if($("#listaCard")) $("#listaCard").addEventListener("click", e => { const ed = 
   if (e.target.dataset.del){ S.cards.splice(i,1); listarCards(); render(); } });
 
 /* ===================== IA (opcional) ===================== */
-$("#apiKey").value = store.get("em_key") || "";
+if($("#apiKey")) $("#apiKey").value = store.get("em_key") || "";
 $("#sugerir").onclick = async () => {
   const st = $("#statusIA"); st.style.display = "block"; st.className = "status";
   const key = $("#apiKey").value.trim(); if (!key){ st.className = "status bad"; st.textContent = "Informe a chave da API."; return; }
@@ -1173,18 +1176,23 @@ $("#modoCompacto").onchange = e => {
   }
 };
 // Restaurar estado
-if (store.get("em_compacto")){ $("#modoCompacto").checked = true; $("#modoCompacto").dispatchEvent(new Event("change")); }
+if (store.get("em_compacto") && $("#modoCompacto")){ $("#modoCompacto").checked = true; $("#modoCompacto").dispatchEvent(new Event("change")); }
 
 /* ===================== Conexões ===================== */
-function carregarCon(){ let c = {}; try{ c = JSON.parse(store.get("em_con")||"{}"); }catch(e){}
-  $("#provedor").value = c.prov || "groq"; $("#apiBase").value = c.base || PROV[$("#provedor").value][0]; $("#apiModelo").value = c.modelo || PROV[$("#provedor").value][1]; $("#apiKeyT").value = c.key || "";
-  if (c.key) $("#motor").value = store.get("em_motor") || "local"; }
-$("#provedor").onchange = () => { const [b,m] = PROV[$("#provedor").value]; $("#apiBase").value = b; $("#apiModelo").value = m; };
-$("#motor").onchange = () => store.set("em_motor", $("#motor").value);
-$("#salvarCon").onclick = () => { store.set("em_con", JSON.stringify(conexoes())); const st = $("#statusCon"); st.style.display="block"; st.className="status ok"; st.textContent="Conexões salvas neste computador."; };
-$("#testarCon").onclick = async () => { const st = $("#statusCon"); st.style.display="block"; st.className="status"; st.textContent="Testando com 1 s de silêncio…";
-  try{ await chamarNuvem(new Float32Array(16000)); st.className="status ok"; st.textContent="Conexão funcionando. Escolha 'Nuvem' como motor na aba Transcrição."; store.set("em_con", JSON.stringify(conexoes())); }
-  catch(e){ st.className="status bad"; st.textContent="Falhou: " + (e.message||e) + (String(e).includes("fetch") ? "\nPossível bloqueio de rede/firewall ou CORS do provedor." : ""); } };
+function carregarCon(){
+  let c = {}; try{ c = JSON.parse(store.get("em_con")||"{}"); }catch(e){}
+  if($("#provedor")) $("#provedor").value = c.prov || "groq";
+  if($("#apiBase")) $("#apiBase").value = c.base || PROV[c.prov||"groq"][0];
+  if($("#apiModelo")) $("#apiModelo").value = c.modelo || PROV[c.prov||"groq"][1];
+  if($("#apiKeyT")) $("#apiKeyT").value = c.key || "";
+  if(c.key && $("#motor")) $("#motor").value = store.get("em_motor") || "local";
+}
+if($("#provedor")) $("#provedor").onchange = () => { const [b,m] = PROV[$("#provedor").value]; if($("#apiBase")) $("#apiBase").value = b; if($("#apiModelo")) $("#apiModelo").value = m; };
+if($("#motor")) $("#motor").onchange = () => store.set("em_motor", $("#motor").value);
+if($("#salvarCon")) $("#salvarCon").onclick = () => { store.set("em_con", JSON.stringify(conexoes())); const st = $("#statusCon"); if(st){ st.style.display="block"; st.className="status ok"; st.textContent="Conexões salvas."; } };
+if($("#testarCon")) $("#testarCon").onclick = async () => { const st = $("#statusCon"); if(!st) return; st.style.display="block"; st.className="status"; st.textContent="Testando...";
+  try{ await chamarNuvem(new Float32Array(16000)); st.className="status ok"; st.textContent="Conexão OK!"; store.set("em_con", JSON.stringify(conexoes())); }
+  catch(e){ st.className="status bad"; st.textContent="Falhou: " + (e.message||e); } };
 $("#diagnosticar").onclick = async () => {
   const L = [], add = (ok, nome, det) => L.push(`<div class="item" style="grid-template-columns:28px 220px 1fr"><b style="color:${ok===true?"var(--ok)":ok===false?"var(--bad)":"var(--muted)"}">${ok===true?"✓":ok===false?"✕":"–"}</b><b>${nome}</b><span>${det}</span></div>`);
   const nav = navigator.userAgent; add(/Chrome|Edg/.test(nav), "Navegador", /Electron/.test(nav) ? "Aplicativo Estúdio Motion (Chromium)" : (/Edg/.test(nav) ? "Edge" : /Chrome/.test(nav) ? "Chrome" : "Use Chrome ou Edge"));
