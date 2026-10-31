@@ -101,18 +101,44 @@ textarea{width:100%;resize:vertical}
 .manual code{background:var(--soft);padding:1px 5px;border-radius:5px;font-size:13px}
 .kbd{font:12px ui-monospace,monospace;background:var(--soft);border:1px solid var(--line);border-radius:5px;padding:1px 6px}
 @media (max-width:880px){
-  .app{grid-template-columns:1fr;padding:10px;gap:10px}
-  .palco{position:static;max-width:100%;margin:0 auto}
-  .tela{aspect-ratio:9/16;max-height:50vh}
-  header{flex-wrap:wrap;padding:10px;gap:8px}
-  header h1{font-size:17px}
+  .app{grid-template-columns:1fr;padding:8px;gap:8px}
+  .palco{position:static;max-width:100%;margin:0 auto;order:-1}
+  .tela{aspect-ratio:9/16;max-height:40vh;border-radius:10px}
+  .controles{padding:8px 0}
+  header{flex-wrap:wrap;padding:10px;gap:6px;position:sticky;top:0;z-index:100;background:var(--panel);border-bottom:1px solid var(--line)}
+  header h1{font-size:16px;flex:1}
+  header h1 span{display:none}
   header .sub{display:none}
-  nav.abas{overflow-x:auto;flex-wrap:nowrap;-webkit-overflow-scrolling:touch}
-  nav.abas button{white-space:nowrap;padding:8px 10px;font-size:13px}
-  .linha{flex-direction:column}
+  header .btn{padding:8px 10px;font-size:13px}
+  .painel{border-radius:10px;min-height:auto}
+  nav.abas{display:flex;overflow-x:auto;-webkit-overflow-scrolling:touch;gap:0;padding:0;scrollbar-width:none}
+  nav.abas::-webkit-scrollbar{display:none}
+  nav.abas button{flex:0 0 auto;white-space:nowrap;padding:12px 14px;font-size:13px;border-radius:0}
+  nav.abas button b{width:18px;height:18px;font-size:11px;line-height:18px;margin-right:4px}
+  .aba{padding:14px}
+  .aba h2{font-size:18px}
+  .linha{flex-direction:column;gap:10px}
   .grid3{grid-template-columns:1fr}
-  button,.btn{min-height:44px;padding:10px 14px}
-  input,select,textarea{min-height:44px;font-size:16px}
+  button,.btn{min-height:48px;padding:12px 16px;font-size:15px;border-radius:10px}
+  input,select,textarea{min-height:48px;font-size:16px;border-radius:8px}
+  .item{grid-template-columns:1fr;gap:6px}
+  .item .t{flex-wrap:wrap}
+  .card-ed{padding:10px}
+  .card-ed .topo{flex-wrap:wrap;gap:6px}
+  .temas{grid-template-columns:1fr 1fr}
+  .tema{padding:10px}
+  .tema .amostra{height:40px;font-size:11px}
+  .status{font-size:12px;padding:10px}
+  p.d{font-size:13px}
+  details summary{padding:10px 0}
+}
+@media (max-width:480px){
+  .app{padding:4px}
+  header h1{font-size:15px}
+  nav.abas button{padding:10px 10px;font-size:12px}
+  nav.abas button span{display:none}
+  .tela{max-height:35vh}
+  .temas{grid-template-columns:1fr}
 }
 </style>
 </head>
@@ -151,28 +177,45 @@ textarea{width:100%;resize:vertical}
     </nav>
 
     <div class="aba on" id="a1">
-      <h2>Vídeo bruto</h2>
-      <p class="d">Use o arquivo original do celular, gravado na vertical. O vídeo fica só no seu computador; nada é enviado para servidor.</p>
-      <label class="btn pri">Escolher vídeo<input id="arqVideo" type="file" accept="video/*"></label>
+      <h2>📹 Etapa 1: Escolha o vídeo</h2>
+      <p class="d">Use o arquivo original do celular (vertical). O vídeo fica só no seu computador.</p>
+      <div class="linha">
+        <label class="btn pri" style="font-size:16px;padding:14px 24px">📁 Escolher vídeo<input id="arqVideo" type="file" accept="video/*"></label>
+      </div>
       <div class="status" id="infoVideo">Nenhum vídeo carregado.</div>
+      <button id="btnProximo1" class="pri" style="margin-top:16px;display:none;width:100%;font-size:16px;padding:14px">▶ Próximo: Transcrever →</button>
     </div>
 
     <div class="aba" id="a2">
-      <h2>Transcrição e legendas</h2>
-      <p class="d">A transcrição roda no seu navegador com o modelo Whisper. Na primeira vez o modelo é baixado (base ≈ 80 MB, small ≈ 250 MB) e fica em cache para as próximas.</p>
+      <h2>🎤 Etapa 2: Transcrição</h2>
+      <p class="d">Transforme a fala em texto. Escolha o método abaixo:</p>
+
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:16px">
+        <div style="border:2px solid var(--line);border-radius:12px;padding:16px;cursor:pointer" onclick="$('#motor').value='local'">
+          <b>💻 No seu computador</b><br>
+          <small style="color:var(--muted)">Gratuito · Demora 2-5 min · Privado</small>
+        </div>
+        <div style="border:2px solid var(--line);border-radius:12px;padding:16px;cursor:pointer" onclick="$('#motor').value='nuvem';$('[data-a=\"a7\"]').click()">
+          <b>☁️ Na nuvem (rápido)</b><br>
+          <small style="color:var(--muted)">Precisa API · 10 segundos · Configure em Conexões</small>
+        </div>
+      </div>
+
       <div class="linha">
         <label class="f">Motor
           <select id="motor">
             <option value="local">Neste computador (gratuito)</option>
-            <option value="nuvem">Nuvem via API (rápido, configure em Conexões)</option>
+            <option value="nuvem">Nuvem via API (rápido)</option>
           </select></label>
         <label class="f">Modelo
           <select id="modelo">
             <option value="onnx-community/whisper-base">Whisper base — rápido</option>
-            <option value="onnx-community/whisper-small" selected>Whisper small — mais preciso</option>
+            <option value="onnx-community/whisper-small" selected>Whisper small — preciso</option>
           </select></label>
-        <button class="pri" id="transcrever" disabled>Transcrever</button>
-        <label class="btn">Importar SRT<input id="arqSrt" type="file" accept=".srt,.vtt,.txt"></label>
+      </div>
+      <div class="linha" style="margin-top:12px">
+        <button class="pri" id="transcrever" disabled style="flex:1;font-size:16px;padding:14px">🎙️ Transcrever agora</button>
+        <label class="btn">📄 Importar SRT<input id="arqSrt" type="file" accept=".srt,.vtt,.txt"></label>
       </div>
       <div class="barra"><i id="barraT"></i></div>
       <div class="status" id="statusT">Aguardando vídeo.</div>
@@ -268,22 +311,43 @@ textarea{width:100%;resize:vertical}
     </div>
 
     <div class="aba" id="a7">
-      <h2>Conexões e diagnóstico</h2>
-      <p class="d">Tudo é opcional. Sem nenhuma chave, o sistema funciona com transcrição local e cartões manuais. As chaves ficam salvas apenas neste computador.</p>
-      <div class="linha"><button class="pri" id="diagnosticar">Verificar ambiente</button><button id="prebaixar">Pré-baixar modelo (uso offline)</button></div>
+      <h2>⚙️ Conexões (opcional)</h2>
+      <p class="d">Sem APIs, tudo funciona localmente. Com APIs, fica mais rápido.</p>
+
+      <div class="linha"><button class="pri" id="diagnosticar">🔍 Verificar ambiente</button><button id="prebaixar">📥 Baixar modelo offline</button></div>
       <div class="lista" id="diag" style="margin-top:12px"></div>
-      <h3>Transcrição em nuvem (API compatível com OpenAI)</h3>
-      <p class="d">Recomendado para computadores modestos: 1 min de vídeo transcreve em segundos. Funciona com OpenAI (whisper-1) ou Groq (whisper-large-v3, com plano gratuito).</p>
-      <div class="grid3">
-        <label class="f">Provedor<select id="provedor"><option value="groq">Groq</option><option value="openai">OpenAI</option><option value="outro">Outro (compatível)</option></select></label>
-        <label class="f">Endereço da API<input id="apiBase" type="text"></label>
-        <label class="f">Modelo<input id="apiModelo" type="text"></label>
-        <label class="f">Chave<input id="apiKeyT" type="password" placeholder="gsk_... ou sk-..."></label>
+
+      <h3>☁️ Transcrição rápida na nuvem</h3>
+      <div style="background:var(--soft);border-radius:10px;padding:14px;margin-bottom:12px">
+        <b>Como configurar (grátis):</b>
+        <ol style="margin:8px 0 0 20px;color:var(--muted);font-size:13px">
+          <li>Acesse <a href="https://console.groq.com" target="_blank" style="color:var(--accent)">console.groq.com</a></li>
+          <li>Crie uma conta gratuita</li>
+          <li>Vá em "API Keys" → "Create API Key"</li>
+          <li>Copie a chave (começa com <code>gsk_</code>)</li>
+          <li>Cole abaixo e clique "Salvar"</li>
+        </ol>
       </div>
-      <div class="linha" style="margin-top:8px"><button id="salvarCon">Salvar conexões</button><button id="testarCon">Testar transcrição em nuvem</button></div>
+      <div class="grid3">
+        <label class="f">Provedor<select id="provedor"><option value="groq">Groq (grátis)</option><option value="openai">OpenAI (pago)</option><option value="outro">Outro</option></select></label>
+        <label class="f">Chave da API<input id="apiKeyT" type="password" placeholder="gsk_... (cole aqui)"></label>
+        <label class="f">Endereço<input id="apiBase" type="text"></label>
+        <label class="f">Modelo<input id="apiModelo" type="text"></label>
+      </div>
+      <div class="linha" style="margin-top:10px"><button class="pri" id="salvarCon">💾 Salvar</button><button id="testarCon">🧪 Testar</button></div>
       <div class="status" id="statusCon" style="display:none"></div>
-      <h3>Claude (sugestão de cartões)</h3>
-      <p class="d">A chave da Anthropic é informada na aba Cartões. Crie em console.anthropic.com → API Keys.</p>
+
+      <h3>🤖 Claude (sugestão inteligente de cartões)</h3>
+      <div style="background:var(--soft);border-radius:10px;padding:14px">
+        <b>Como configurar:</b>
+        <ol style="margin:8px 0 0 20px;color:var(--muted);font-size:13px">
+          <li>Acesse <a href="https://console.anthropic.com" target="_blank" style="color:var(--accent)">console.anthropic.com</a></li>
+          <li>Crie conta e adicione créditos ($5 mínimo)</li>
+          <li>Vá em "API Keys" → "Create Key"</li>
+          <li>Copie a chave (começa com <code>sk-ant-</code>)</li>
+          <li>Cole na aba "Cartões" → "Sugestão avançada"</li>
+        </ol>
+      </div>
     </div>
 
     <div class="aba manual" id="a6">
@@ -571,17 +635,17 @@ $("#arqVideo").onchange = e => {
     $("#infoVideo").textContent = `✓ ${f.name}\n${vid.videoWidth}×${vid.videoHeight} · ${fmt(vid.duration)} s · ${(f.size/1048576).toFixed(1)} MB` +
       (vid.videoWidth < 900 ? "\n⚠️ Resolução baixa. Prefira o arquivo original." : "");
     $("#infoVideo").className = "status ok";
-    $("#statusT").textContent = "✓ Vídeo pronto! Clique em Transcrever para continuar.";
+    $("#statusT").textContent = "✓ Vídeo pronto! Clique em Transcrever.";
     $("#statusT").className = "status ok";
     vid.currentTime = 0.01;
 
-    // Avança para próxima aba automaticamente após 1s
-    setTimeout(() => {
-      if(!$("#modoCompacto").checked) $('[data-a="a2"]').click();
-    }, 800);
+    // Mostra botão para avançar
+    $("#btnProximo1").style.display = "block";
+    render();
   };
   vid.onseeked = render;
 };
+$("#btnProximo1").onclick = () => { $('[data-a="a2"]').click(); };
 $("#play").onclick = () => { if (vid.paused){ vid.play(); $("#play").textContent = "❚❚"; iniciarLoop(); } else { vid.pause(); $("#play").textContent = "▶"; } };
 vid.onended = () => { $("#play").textContent = "▶"; };
 $("#scrub").oninput = e => { arrastando = true; vid.currentTime = +e.target.value; };
