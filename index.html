@@ -986,12 +986,13 @@ function analisarTranscricao(){
 }
 
 function listarSugestoes(){
+  if(!$("#sugestoesAuto")) return;
   const sug = analisarTranscricao();
   const NT = {relacao:"Relação", numero:"Número", lista:"Lista", alerta:"Alerta"};
   const CONF = {alta:"🟢", media:"🟡"};
 
   if(!sug.length){
-    $("#sugestoesAuto").innerHTML = `<p class="d">Nenhuma sugestão encontrada. Faça a transcrição primeiro ou crie cartões manualmente.</p>`;
+    $("#sugestoesAuto").innerHTML = `<p class="d">Nenhuma sugestão encontrada. Faça a transcrição primeiro.</p>`;
     return;
   }
 
@@ -1007,7 +1008,7 @@ function listarSugestoes(){
   window._sugestoes = sug;
 }
 
-$("#sugestoesAuto").onclick = e => {
+if($("#sugestoesAuto")) $("#sugestoesAuto").onclick = e => {
   const item = e.target.closest("[data-sug]");
   if(!item || !window._sugestoes) return;
   const s = window._sugestoes[+item.dataset.sug];
@@ -1020,14 +1021,15 @@ $("#sugestoesAuto").onclick = e => {
   item.style.pointerEvents = "none";
 };
 
-$("#analisarTranscricao").onclick = listarSugestoes;
+if($("#analisarTranscricao")) $("#analisarTranscricao").onclick = listarSugestoes;
 
 const campo = (rot, k, v, tipo="text", extra="") => `<label class="f">${rot}<input type="${tipo}" ${tipo==="number"?'step="0.05"':""} data-k="${k}" value="${String(v??"").replace(/"/g,"&quot;")}" ${extra}></label>`;
 const sel = (rot, k, opts) => `<label class="f">${rot}<select data-k="${k}">${opts}</select></label>`;
 const agora = k => `<button data-agora="${k}" title="Usar o tempo atual">agora</button>`;
 function listarCards(){
   const NT = {relacao:"Relação", numero:"Número", lista:"Lista", alerta:"Alerta"};
-  $("#contCard").textContent = `(${S.cards.length})`;
+  if($("#contCard")) $("#contCard").textContent = `(${S.cards.length})`;
+  if(!$("#listaCard")) return;
   $("#listaCard").innerHTML = S.cards.map((c,i) => {
     let corpo = "";
     if (c.tipo === "relacao") corpo = `<div class="grid3">${sel("Ícone A","iconeA",optIcones(c.iconeA))}${campo("Rótulo A","rotuloA",c.rotuloA)}
