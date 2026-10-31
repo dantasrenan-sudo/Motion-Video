@@ -424,6 +424,7 @@ textarea{width:100%;resize:vertical}
 </div>
 
 <script type="module">
+document.addEventListener('DOMContentLoaded', () => {
 /* ===================== Estado ===================== */
 const W = 1080, H = 1920;
 const TEMAS = {
@@ -1216,6 +1217,8 @@ aplicarEstiloUI(); listarLegendas(); listarCards(); render();
 if ("serviceWorker" in navigator && !window.require) {
   navigator.serviceWorker.register("./sw.js").catch(() => {});
 }
+
+}); // fim DOMContentLoaded
 </script>
 </body>
 </html>
