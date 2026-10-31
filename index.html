@@ -3,8 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, maximum-scale=1">
-<meta name="mobile-web-app-capable" content="yes">
-<link rel="icon" type="image/svg+xml" href="favicon.svg">
+<meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <meta name="theme-color" content="#E2552F">
 <link rel="manifest" href="manifest.json">
@@ -80,9 +79,6 @@ textarea{width:100%;resize:vertical}
 .status{font-size:13px;padding:9px 12px;border-radius:9px;background:var(--soft);border:1px solid var(--line);margin-top:12px;white-space:pre-wrap}
 .status.ok{border-color:var(--ok);color:var(--ok)}
 .status.bad{border-color:var(--bad);color:var(--bad)}
-.status.loading{border-color:var(--accent);color:var(--accent);position:relative}
-.status.loading::before{content:"";display:inline-block;width:16px;height:16px;border:2px solid var(--accent);border-top-color:transparent;border-radius:50%;animation:spin 1s linear infinite;margin-right:8px;vertical-align:middle}
-@keyframes spin{to{transform:rotate(360deg)}}
 .barra{height:8px;background:var(--line);border-radius:5px;overflow:hidden;margin-top:8px}
 .barra i{display:block;height:100%;width:0;background:var(--accent);transition:width .2s}
 .lista{display:flex;flex-direction:column;gap:8px}
@@ -104,82 +100,19 @@ textarea{width:100%;resize:vertical}
 .manual li{margin-bottom:6px}
 .manual code{background:var(--soft);padding:1px 5px;border-radius:5px;font-size:13px}
 .kbd{font:12px ui-monospace,monospace;background:var(--soft);border:1px solid var(--line);border-radius:5px;padding:1px 6px}
-/* ===== MOBILE LAYOUT ===== */
 @media (max-width:880px){
-  html,body{height:auto;min-height:100%}
-  body{padding-bottom:env(safe-area-inset-bottom,20px)}
-
-  /* Header fixo */
-  header{position:fixed;top:0;left:0;right:0;z-index:1000;padding:8px 12px;gap:8px;background:var(--panel);border-bottom:1px solid var(--line)}
-  header h1{font-size:15px;flex:1;white-space:nowrap}
-  header h1 span{display:none}
+  .app{grid-template-columns:1fr;padding:10px;gap:10px}
+  .palco{position:static;max-width:100%;margin:0 auto}
+  .tela{aspect-ratio:9/16;max-height:50vh}
+  header{flex-wrap:wrap;padding:10px;gap:8px}
+  header h1{font-size:17px}
   header .sub{display:none}
-  header .btn{padding:6px 10px;font-size:12px;min-height:36px}
-
-  /* App com padding para header */
-  .app{display:flex;flex-direction:column;padding:60px 8px 8px;gap:8px;max-width:100%}
-
-  /* Preview do vídeo */
-  .palco{position:relative;width:100%;max-width:280px;margin:0 auto}
-  .tela{aspect-ratio:9/16;max-height:200px;border-radius:8px;box-shadow:0 4px 12px rgba(0,0,0,.2)}
-  .controles{padding:6px 0;gap:6px}
-  .controles button{min-height:36px;padding:6px 12px}
-  .tempo{font-size:11px;min-width:70px}
-
-  /* Painel de abas */
-  .painel{border-radius:8px;min-height:auto;flex:1}
-  nav.abas{display:flex;overflow-x:auto;-webkit-overflow-scrolling:touch;gap:0;padding:4px 4px 0;scrollbar-width:none;background:var(--soft)}
-  nav.abas::-webkit-scrollbar{display:none}
-  nav.abas button{flex:0 0 auto;white-space:nowrap;padding:10px 12px;font-size:12px;border-radius:6px 6px 0 0;min-height:auto}
-  nav.abas button b{width:16px;height:16px;font-size:10px;line-height:16px;margin-right:3px}
-
-  /* Conteúdo das abas */
-  .aba{padding:12px}
-  .aba h2{font-size:16px;margin-bottom:8px}
-  .aba h3{font-size:14px;margin:12px 0 6px}
-  p.d{font-size:12px;margin-bottom:10px}
-
-  /* Formulários */
-  .linha{flex-direction:column;gap:8px}
+  nav.abas{overflow-x:auto;flex-wrap:nowrap;-webkit-overflow-scrolling:touch}
+  nav.abas button{white-space:nowrap;padding:8px 10px;font-size:13px}
+  .linha{flex-direction:column}
   .grid3{grid-template-columns:1fr}
-  button,.btn{min-height:44px;padding:10px 14px;font-size:14px;border-radius:8px;width:100%}
-  input,select,textarea{min-height:44px;font-size:16px;border-radius:6px;width:100%}
-  label.f{font-size:12px}
-
-  /* Listas e cards */
-  .item{grid-template-columns:1fr;gap:4px;padding:6px}
-  .item .t{flex-wrap:wrap;font-size:11px}
-  .item .t input{width:50px;min-height:28px;font-size:12px}
-  .item textarea{min-height:40px;font-size:13px}
-  .card-ed{padding:8px}
-  .card-ed .topo{flex-wrap:wrap;gap:4px}
-
-  /* Temas */
-  .temas{grid-template-columns:repeat(2,1fr);gap:6px}
-  .tema{padding:8px}
-  .tema .amostra{height:32px;font-size:10px}
-
-  /* Status */
-  .status{font-size:11px;padding:8px;margin-top:8px}
-  .barra{height:6px;margin-top:6px}
-
-  /* Esconder elementos não essenciais */
-  .manual{font-size:13px}
-  details{font-size:13px}
-}
-
-/* ===== MOBILE PEQUENO ===== */
-@media (max-width:480px){
-  header{padding:6px 8px}
-  header h1{font-size:14px}
-  header .btn{display:none}
-  .app{padding:52px 6px 6px}
-  .palco{max-width:220px}
-  .tela{max-height:160px}
-  nav.abas button{padding:8px 8px;font-size:11px}
-  nav.abas button b{display:none}
-  .aba{padding:10px}
-  .temas{grid-template-columns:1fr}
+  button,.btn{min-height:44px;padding:10px 14px}
+  input,select,textarea{min-height:44px;font-size:16px}
 }
 </style>
 </head>
@@ -218,45 +151,28 @@ textarea{width:100%;resize:vertical}
     </nav>
 
     <div class="aba on" id="a1">
-      <h2>📹 Etapa 1: Escolha o vídeo</h2>
-      <p class="d">Use o arquivo original do celular (vertical). O vídeo fica só no seu computador.</p>
-      <div class="linha">
-        <label class="btn pri" style="font-size:16px;padding:14px 24px">📁 Escolher vídeo<input id="arqVideo" type="file" accept="video/*"></label>
-      </div>
+      <h2>Vídeo bruto</h2>
+      <p class="d">Use o arquivo original do celular, gravado na vertical. O vídeo fica só no seu computador; nada é enviado para servidor.</p>
+      <label class="btn pri">Escolher vídeo<input id="arqVideo" type="file" accept="video/*"></label>
       <div class="status" id="infoVideo">Nenhum vídeo carregado.</div>
-      <button id="btnProximo1" class="pri" style="margin-top:16px;display:none;width:100%;font-size:16px;padding:14px">▶ Próximo: Transcrever →</button>
     </div>
 
     <div class="aba" id="a2">
-      <h2>🎤 Etapa 2: Transcrição</h2>
-      <p class="d">Transforme a fala em texto. Escolha o método abaixo:</p>
-
-      <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:16px">
-        <div style="border:2px solid var(--line);border-radius:12px;padding:16px;cursor:pointer" onclick="$('#motor').value='local'">
-          <b>💻 No seu computador</b><br>
-          <small style="color:var(--muted)">Gratuito · Demora 2-5 min · Privado</small>
-        </div>
-        <div style="border:2px solid var(--line);border-radius:12px;padding:16px;cursor:pointer" onclick="$('#motor').value='nuvem';$('[data-a=\"a7\"]').click()">
-          <b>☁️ Na nuvem (rápido)</b><br>
-          <small style="color:var(--muted)">Precisa API · 10 segundos · Configure em Conexões</small>
-        </div>
-      </div>
-
+      <h2>Transcrição e legendas</h2>
+      <p class="d">A transcrição roda no seu navegador com o modelo Whisper. Na primeira vez o modelo é baixado (base ≈ 80 MB, small ≈ 250 MB) e fica em cache para as próximas.</p>
       <div class="linha">
         <label class="f">Motor
           <select id="motor">
             <option value="local">Neste computador (gratuito)</option>
-            <option value="nuvem">Nuvem via API (rápido)</option>
+            <option value="nuvem">Nuvem via API (rápido, configure em Conexões)</option>
           </select></label>
         <label class="f">Modelo
           <select id="modelo">
             <option value="onnx-community/whisper-base">Whisper base — rápido</option>
-            <option value="onnx-community/whisper-small" selected>Whisper small — preciso</option>
+            <option value="onnx-community/whisper-small" selected>Whisper small — mais preciso</option>
           </select></label>
-      </div>
-      <div class="linha" style="margin-top:12px">
-        <button class="pri" id="transcrever" disabled style="flex:1;font-size:16px;padding:14px">🎙️ Transcrever agora</button>
-        <label class="btn">📄 Importar SRT<input id="arqSrt" type="file" accept=".srt,.vtt,.txt"></label>
+        <button class="pri" id="transcrever" disabled>Transcrever</button>
+        <label class="btn">Importar SRT<input id="arqSrt" type="file" accept=".srt,.vtt,.txt"></label>
       </div>
       <div class="barra"><i id="barraT"></i></div>
       <div class="status" id="statusT">Aguardando vídeo.</div>
@@ -352,43 +268,22 @@ textarea{width:100%;resize:vertical}
     </div>
 
     <div class="aba" id="a7">
-      <h2>⚙️ Conexões (opcional)</h2>
-      <p class="d">Sem APIs, tudo funciona localmente. Com APIs, fica mais rápido.</p>
-
-      <div class="linha"><button class="pri" id="diagnosticar">🔍 Verificar ambiente</button><button id="prebaixar">📥 Baixar modelo offline</button></div>
+      <h2>Conexões e diagnóstico</h2>
+      <p class="d">Tudo é opcional. Sem nenhuma chave, o sistema funciona com transcrição local e cartões manuais. As chaves ficam salvas apenas neste computador.</p>
+      <div class="linha"><button class="pri" id="diagnosticar">Verificar ambiente</button><button id="prebaixar">Pré-baixar modelo (uso offline)</button></div>
       <div class="lista" id="diag" style="margin-top:12px"></div>
-
-      <h3>☁️ Transcrição rápida na nuvem</h3>
-      <div style="background:var(--soft);border-radius:10px;padding:14px;margin-bottom:12px">
-        <b>Como configurar (grátis):</b>
-        <ol style="margin:8px 0 0 20px;color:var(--muted);font-size:13px">
-          <li>Acesse <a href="https://console.groq.com" target="_blank" style="color:var(--accent)">console.groq.com</a></li>
-          <li>Crie uma conta gratuita</li>
-          <li>Vá em "API Keys" → "Create API Key"</li>
-          <li>Copie a chave (começa com <code>gsk_</code>)</li>
-          <li>Cole abaixo e clique "Salvar"</li>
-        </ol>
-      </div>
+      <h3>Transcrição em nuvem (API compatível com OpenAI)</h3>
+      <p class="d">Recomendado para computadores modestos: 1 min de vídeo transcreve em segundos. Funciona com OpenAI (whisper-1) ou Groq (whisper-large-v3, com plano gratuito).</p>
       <div class="grid3">
-        <label class="f">Provedor<select id="provedor"><option value="groq">Groq (grátis)</option><option value="openai">OpenAI (pago)</option><option value="outro">Outro</option></select></label>
-        <label class="f">Chave da API<input id="apiKeyT" type="password" placeholder="gsk_... (cole aqui)"></label>
-        <label class="f">Endereço<input id="apiBase" type="text"></label>
+        <label class="f">Provedor<select id="provedor"><option value="groq">Groq</option><option value="openai">OpenAI</option><option value="outro">Outro (compatível)</option></select></label>
+        <label class="f">Endereço da API<input id="apiBase" type="text"></label>
         <label class="f">Modelo<input id="apiModelo" type="text"></label>
+        <label class="f">Chave<input id="apiKeyT" type="password" placeholder="gsk_... ou sk-..."></label>
       </div>
-      <div class="linha" style="margin-top:10px"><button class="pri" id="salvarCon">💾 Salvar</button><button id="testarCon">🧪 Testar</button></div>
+      <div class="linha" style="margin-top:8px"><button id="salvarCon">Salvar conexões</button><button id="testarCon">Testar transcrição em nuvem</button></div>
       <div class="status" id="statusCon" style="display:none"></div>
-
-      <h3>🤖 Claude (sugestão inteligente de cartões)</h3>
-      <div style="background:var(--soft);border-radius:10px;padding:14px">
-        <b>Como configurar:</b>
-        <ol style="margin:8px 0 0 20px;color:var(--muted);font-size:13px">
-          <li>Acesse <a href="https://console.anthropic.com" target="_blank" style="color:var(--accent)">console.anthropic.com</a></li>
-          <li>Crie conta e adicione créditos ($5 mínimo)</li>
-          <li>Vá em "API Keys" → "Create Key"</li>
-          <li>Copie a chave (começa com <code>sk-ant-</code>)</li>
-          <li>Cole na aba "Cartões" → "Sugestão avançada"</li>
-        </ol>
-      </div>
+      <h3>Claude (sugestão de cartões)</h3>
+      <p class="d">A chave da Anthropic é informada na aba Cartões. Crie em console.anthropic.com → API Keys.</p>
     </div>
 
     <div class="aba manual" id="a6">
@@ -424,20 +319,13 @@ textarea{width:100%;resize:vertical}
 </div>
 
 <script type="module">
-document.addEventListener('DOMContentLoaded', () => {
 /* ===================== Estado ===================== */
 const W = 1080, H = 1920;
 const TEMAS = {
   "marinho-dourado": {nome:"Marinho e dourado", card:"rgba(27,46,70,0.88)", borda:"rgba(207,178,119,0.22)", cor:"#CFB277", rotulo:"#E8E8EA", contorno:"#000000"},
   "grafite-coral":   {nome:"Grafite e coral",   card:"rgba(28,28,32,0.90)", borda:"rgba(255,107,87,0.38)", cor:"#FF6B57", rotulo:"#F4F1EE", contorno:"#000000"},
   "petroleo-lima":   {nome:"Petróleo e lima",   card:"rgba(10,61,66,0.90)", borda:"rgba(200,240,90,0.32)", cor:"#C8F05A", rotulo:"#EAF5F2", contorno:"#062628"},
-  "claro-eletrico":  {nome:"Claro e elétrico",  card:"rgba(255,255,255,0.94)", borda:"rgba(37,99,255,0.28)", cor:"#2563FF", rotulo:"#14213D", contorno:"#0B1530"},
-  "roxo-neon":       {nome:"Roxo neon",         card:"rgba(45,20,70,0.92)", borda:"rgba(180,100,255,0.35)", cor:"#B464FF", rotulo:"#F0E8FF", contorno:"#1A0A2E"},
-  "verde-menta":     {nome:"Verde menta",       card:"rgba(20,60,50,0.90)", borda:"rgba(100,220,180,0.30)", cor:"#64DCB4", rotulo:"#E8FFF6", contorno:"#0A2820"},
-  "laranja-quente":  {nome:"Laranja quente",    card:"rgba(50,25,15,0.92)", borda:"rgba(255,140,50,0.35)", cor:"#FF8C32", rotulo:"#FFF5E8", contorno:"#1A0A00"},
-  "azul-gelo":       {nome:"Azul gelo",         card:"rgba(230,240,250,0.95)", borda:"rgba(70,130,200,0.25)", cor:"#4682C8", rotulo:"#1A3050", contorno:"#0A1525"},
-  "rosa-moderno":    {nome:"Rosa moderno",      card:"rgba(60,30,45,0.90)", borda:"rgba(255,100,150,0.35)", cor:"#FF6496", rotulo:"#FFE8F0", contorno:"#200A14"},
-  "preto-ouro":      {nome:"Preto e ouro",      card:"rgba(15,15,15,0.95)", borda:"rgba(220,180,80,0.40)", cor:"#DCB450", rotulo:"#F5F0E0", contorno:"#000000"}
+  "claro-eletrico":  {nome:"Claro e elétrico",  card:"rgba(255,255,255,0.94)", borda:"rgba(37,99,255,0.28)", cor:"#2563FF", rotulo:"#14213D", contorno:"#0B1530"}
 };
 const S = {
   legendas: [], cards: [], palavras: [],
@@ -446,9 +334,6 @@ const S = {
 };
 let logoImg = null;
 const $ = s => document.querySelector(s);
-const $on = (s, ev, fn) => { const el = $(s); if(el) el[ev] = fn; };
-const $click = (s, fn) => $on(s, 'onclick', fn);
-const $change = (s, fn) => $on(s, 'onchange', fn);
 const fmt = t => (t||0).toFixed(2).replace(".", ",");
 const store = {get:k=>{try{return localStorage.getItem(k)}catch(e){return null}}, set:(k,v)=>{try{localStorage.setItem(k,v)}catch(e){}}};
 
@@ -485,17 +370,7 @@ const ICONES = {
   estrela:"M24 5l5.6 12.2 13.4 1.5-10 9 2.9 13.2L24 34.2 12.1 40.9 15 27.7 5 18.7l13.4-1.5z",
   caminhao:"M4 12h24v20H4zM28 19h9l7 7v6H28zM4 32h40"+C(12,35,4)+C(36,35,4),
   hospital:"M8 8h32v34H8zM24 15v14M17 22h14",
-  martelo:"M30 6l12 12-5 5-12-12zM27 15L8 34a3 3 0 0 0 4 4l19-19",
-  // Novos ícones para seguros
-  guarda:"M24 8a6 6 0 1 0 0 12 6 6 0 0 0 0-12zM12 26c0-6 5-8 12-8s12 2 12 8v14H12z",
-  sino:"M24 6v3M24 42v2M12 36h24M15 36V20a9 9 0 0 1 18 0v16",
-  folha:"M24 42V24M24 24c-8-8-16 0-16-12 8 0 16 4 16 12zM24 24c8-8 16 0 16-12-8 0-16 4-16 12z",
-  cofre:"M8 12h32v28H8zM16 26h16M24 22v8M4 16v20M44 16v20",
-  contrato:"M10 6h20l8 8v28H10zM30 6v8h8M16 20h16M16 28h16M16 36h10",
-  familia:"M16 14a5 5 0 1 0 0 10 5 5 0 0 0 0-10zM32 14a5 5 0 1 0 0 10 5 5 0 0 0 0-10zM8 38c0-5 4-8 8-8h0c2 3 6 3 8 0h0c4 0 8 3 8 8M24 38c0-5 4-8 8-8s8 3 8 8",
-  medalha:"M24 6l4 8 9 1-6 6 1 9-8-4-8 4 1-9-6-6 9-1zM18 30l-4 12 10-6 10 6-4-12",
-  ampulheta:"M14 6h20v4c0 8-5 12-10 14 5 2 10 6 10 14v4H14v-4c0-8 5-12 10-14-5-2-10-6-10-14z",
-  bandeira:"M12 6v36M12 6h22l-6 9 6 9H12"
+  martelo:"M30 6l12 12-5 5-12-12zM27 15L8 34a3 3 0 0 0 4 4l19-19"
 };
 const P2D = {}; for (const k in ICONES) P2D[k] = new Path2D(ICONES[k]);
 function icone(ctx, nome, x, y, tam, cor){
@@ -645,52 +520,26 @@ function render(){
   if (!arrastando) $("#scrub").value = t;
   marcarAtual(t);
 }
-let arrastando = false, loopOn = false, gravando = false;
+let arrastando = false, loopOn = false;
 function loop(){ render(); if (!vid.paused || gravando) requestAnimationFrame(loop); else loopOn = false; }
 function iniciarLoop(){ if (!loopOn){ loopOn = true; requestAnimationFrame(loop); } }
 
 /* ===================== Vídeo ===================== */
 $("#arqVideo").onchange = e => {
   const f = e.target.files[0]; if (!f) return;
-  console.log("[Motion] Carregando vídeo:", f.name, f.size);
-  $("#infoVideo").textContent = "Carregando vídeo..."; $("#infoVideo").className = "status";
   S.nomeVideo = f.name.replace(/\.[^.]+$/, "");
-
-  try {
-    vid.src = URL.createObjectURL(f);
-    vid.load();
-  } catch(err) {
-    console.error("[Motion] Erro ao criar URL:", err);
-    $("#infoVideo").textContent = "Erro ao carregar vídeo: " + err.message;
-    $("#infoVideo").className = "status bad";
-    return;
-  }
-
-  vid.onerror = () => {
-    console.error("[Motion] Erro no vídeo:", vid.error);
-    $("#infoVideo").textContent = "Erro: formato de vídeo não suportado. Use MP4 ou WebM.";
-    $("#infoVideo").className = "status bad";
-  };
-
+  vid.src = URL.createObjectURL(f); vid.load();
   vid.onloadedmetadata = () => {
-    console.log("[Motion] Metadados carregados:", vid.videoWidth, "x", vid.videoHeight, vid.duration + "s");
     S.duracao = vid.duration; $("#scrub").max = vid.duration;
     $("#vazio").style.display = "none";
     ["#play","#scrub","#transcrever","#exportar"].forEach(s => $(s).disabled = false);
-    $("#infoVideo").textContent = `✓ ${f.name}\n${vid.videoWidth}×${vid.videoHeight} · ${fmt(vid.duration)} s · ${(f.size/1048576).toFixed(1)} MB` +
-      (vid.videoWidth < 900 ? "\n⚠️ Resolução baixa. Prefira o arquivo original." : "");
-    $("#infoVideo").className = "status ok";
-    $("#statusT").textContent = "✓ Vídeo pronto! Clique em Transcrever.";
-    $("#statusT").className = "status ok";
+    $("#infoVideo").textContent = `${f.name}\n${vid.videoWidth}×${vid.videoHeight} · ${fmt(vid.duration)} s · ${(f.size/1048576).toFixed(1)} MB` +
+      (vid.videoWidth < 900 ? "\nAtenção: resolução baixa. O resultado final pode ficar borrado; prefira o arquivo original do celular." : "");
+    $("#infoVideo").className = "status ok"; $("#statusT").textContent = "Pronto para transcrever.";
     vid.currentTime = 0.01;
-
-    // Mostra botão para avançar
-    $("#btnProximo1").style.display = "block";
-    render();
   };
   vid.onseeked = render;
 };
-$("#btnProximo1").onclick = () => { $('[data-a="a2"]').click(); };
 $("#play").onclick = () => { if (vid.paused){ vid.play(); $("#play").textContent = "❚❚"; iniciarLoop(); } else { vid.pause(); $("#play").textContent = "▶"; } };
 vid.onended = () => { $("#play").textContent = "▶"; };
 $("#scrub").oninput = e => { arrastando = true; vid.currentTime = +e.target.value; };
@@ -709,63 +558,32 @@ async function audio16k(){
 let asr = null, modeloCarregado = "";
 $("#transcrever").onclick = async () => {
   const st = $("#statusT"), barra = $("#barraT"), btn = $("#transcrever");
-  btn.disabled = true;
-  btn.textContent = "⏳ Processando...";
-  st.className = "status loading";
-  st.textContent = "Iniciando transcrição...";
-  barra.style.width = "5%";
-  console.log("[Motion] Iniciando transcrição...");
-
+  btn.disabled = true; st.className = "status";
   try{
-    if ($("#motor").value === "nuvem"){
-      console.log("[Motion] Usando motor nuvem");
-      st.textContent = "Conectando ao servidor de transcrição...";
-      await transcreverNuvem(st, barra);
-      btn.disabled = false;
-      btn.textContent = "🎙️ Transcrever agora";
-      return;
-    }
-    st.className = "status loading";
-    st.textContent = "Passo 1/4: Carregando biblioteca de IA...";
-    barra.style.width = "10%";
-    console.log("[Motion] Carregando biblioteca...");
+    if ($("#motor").value === "nuvem"){ await transcreverNuvem(st, barra); btn.disabled = false; return; }
+    st.textContent = "Carregando biblioteca de IA…";
     const { pipeline, env } = await bibliotecaIA();
-    console.log("[Motion] Biblioteca carregada");
     const modelo = $("#modelo").value;
     if (!asr || modeloCarregado !== modelo){
       const arq = {};
-      st.className = "status loading";
-      st.textContent = "Passo 2/4: Baixando modelo de IA (só na primeira vez)...";
-      barra.style.width = "20%";
-      console.log("[Motion] Baixando modelo:", modelo);
+      st.textContent = "Baixando modelo (só na primeira vez)…";
       asr = await pipeline("automatic-speech-recognition", modelo, {
         dtype: { encoder_model: "fp32", decoder_model_merged: "q4" },
         device: navigator.gpu ? "webgpu" : "wasm",
         progress_callback: p => {
           if (p.status === "progress" && p.total){ arq[p.file] = [p.loaded, p.total];
             const v = Object.values(arq), l = v.reduce((a,b)=>a+b[0],0), tt = v.reduce((a,b)=>a+b[1],0);
-            const pct = (100*l/tt).toFixed(0);
-            barra.style.width = pct + "%";
-            st.textContent = `Passo 2/4: Baixando modelo... ${(l/1048576).toFixed(0)} de ${(tt/1048576).toFixed(0)} MB (${pct}%)`; }
+            barra.style.width = (100*l/tt).toFixed(0) + "%"; st.textContent = `Baixando modelo… ${(l/1048576).toFixed(0)} de ${(tt/1048576).toFixed(0)} MB`; }
         }
       }).catch(async e => {
-        console.log("[Motion] WebGPU falhou, usando WASM");
-        st.textContent = "Passo 2/4: Usando processador (mais lento)...";
+        st.textContent = "WebGPU indisponível, usando processador…";
         return pipeline("automatic-speech-recognition", modelo, { device: "wasm" });
       });
       modeloCarregado = modelo;
     }
-    st.className = "status loading";
-    st.textContent = "Passo 3/4: Extraindo áudio do vídeo...";
-    barra.style.width = "60%";
-    console.log("[Motion] Extraindo áudio...");
+    st.textContent = "Extraindo áudio…"; barra.style.width = "100%";
     const audio = await audio16k();
-    const durAudio = (audio.length/16000).toFixed(1);
-    console.log("[Motion] Áudio extraído:", durAudio, "segundos");
-
-    st.className = "status loading";
-    st.textContent = `Passo 4/4: Transcrevendo ${durAudio}s de áudio...\n\nIsso pode levar ${Math.ceil(durAudio/20)} minutos. Não feche a janela.`;
-    barra.style.width = "70%";
+    st.textContent = `Transcrevendo ${fmt(audio.length/16000)} s de áudio… (pode levar alguns minutos; a página pode parecer travada)`;
     await new Promise(r => setTimeout(r, 60));
     let out, palavras = [];
     try{
@@ -781,19 +599,12 @@ $("#transcrever").onclick = async () => {
     aplicarGlossarioAuto();
     // Analisa sugestões de cartões
     listarSugestoes();
-    barra.style.width = "100%";
-    st.className = "status ok";
-    st.textContent = `✓ Transcrição concluída!\n\n${palavras.length} palavras · ${S.legendas.length} blocos\nCorreções de dicção aplicadas.\n\n→ Clique na aba "Cartões" para ver sugestões automáticas.`;
+    st.className = "status ok"; st.textContent = `Transcrição concluída: ${palavras.length} palavras, ${S.legendas.length} blocos. Correções de dicção aplicadas. Veja sugestões de cartões na aba 3.`;
     render();
-    console.log("[Motion] Transcrição concluída com sucesso");
   }catch(e){
-    console.error("[Motion] Erro na transcrição:", e);
-    st.className = "status bad";
-    st.textContent = "❌ Falha na transcrição: " + (e.message||e) + "\n\nSoluções:\n• Tente o modelo 'base' (mais leve)\n• Verifique a conexão com internet\n• Ou importe um arquivo SRT";
-    barra.style.width = "0%";
+    st.className = "status bad"; st.textContent = "Falha na transcrição: " + (e.message||e) + "\nTente o modelo base, verifique a internet ou importe um SRT.";
   }
   btn.disabled = false;
-  btn.textContent = "🎙️ Transcrever agora";
 };
 
 async function bibliotecaIA(){
@@ -882,7 +693,7 @@ franquiada = franquia
 coparticipação = co-participação
 casco = casco
 roubo = roubo/furto`;
-if($("#glossario")) $("#glossario").value = store.get("em_glossario") || GLOSSARIO_SEGUROS;
+$("#glossario").value = store.get("em_glossario") || GLOSSARIO_SEGUROS;
 
 $("#arqSrt").onchange = async e => {
   const f = e.target.files[0]; if (!f) return; const txt = await f.text();
@@ -900,9 +711,9 @@ function listarLegendas(){
     <textarea data-k="texto">${l.texto.replace(/</g,"&lt;")}</textarea>
     <div style="display:flex;flex-direction:column;gap:4px"><button data-ir="${i}" title="Ir para">▶</button><button data-del="${i}" title="Remover">✕</button></div></div>`).join("");
 }
-if($("#listaLeg")) $("#listaLeg").addEventListener("input", e => { const it = e.target.closest(".item"); if (!it) return; const l = S.legendas[+it.dataset.i], k = e.target.dataset.k;
+$("#listaLeg").addEventListener("input", e => { const it = e.target.closest(".item"); if (!it) return; const l = S.legendas[+it.dataset.i], k = e.target.dataset.k;
   l[k] = k === "texto" ? e.target.value : +e.target.value; render(); });
-if($("#listaLeg")) $("#listaLeg").addEventListener("click", e => { if (e.target.dataset.ir){ vid.currentTime = S.legendas[+e.target.dataset.ir].t0 + 0.01; }
+$("#listaLeg").addEventListener("click", e => { if (e.target.dataset.ir){ vid.currentTime = S.legendas[+e.target.dataset.ir].t0 + 0.01; }
   if (e.target.dataset.del){ S.legendas.splice(+e.target.dataset.del, 1); listarLegendas(); render(); } });
 let ultimoAtual = -1;
 function marcarAtual(t){ const i = S.legendas.findIndex(l => t >= l.t0 && t < l.t1); if (i === ultimoAtual) return; ultimoAtual = i;
@@ -924,80 +735,56 @@ document.querySelectorAll("[data-novo]").forEach(b => b.onclick = () => { S.card
 /* ===================== Sugestões automáticas ===================== */
 function analisarTranscricao(){
   const sug = [];
-  const texto = S.legendas.map(l => ({t0:l.t0, t1:l.t1, txt:l.texto.replace(/\n/g," ").toLowerCase()}));
-  const usado = new Set();
+  const texto = S.legendas.map(l => ({t0:l.t0, t1:l.t1, txt:l.texto.replace(/\n/g," ")}));
 
-  // Detectar números (15 dias, 30%, R$ 500, etc.)
-  const reNum = /(\d+[\d.,]*)\s*(dias?|anos?|meses?|%|reais?|r\$|horas?|minutos?|vezes|parcelas?|quilômetros?|km)/gi;
+  // Detectar números (15 dias, 30%, R$ 500, 3 anos, etc.)
+  const reNum = /(\d+[\d.,]*)\s*(dias?|anos?|meses?|%|reais?|r\$|horas?|minutos?|vezes|parcelas?)/gi;
   texto.forEach(l => {
-    let m; const re = new RegExp(reNum.source, "gi");
-    while((m = re.exec(l.txt)) !== null){
-      const chave = `num-${Math.floor(l.t0/5)}`;
-      if(usado.has(chave)) continue; usado.add(chave);
+    let m; while((m = reNum.exec(l.txt)) !== null){
       const valor = m[1], unidade = m[2].toLowerCase();
-      const icone = unidade.includes("dia")||unidade.includes("hora")||unidade.includes("ano")||unidade.includes("mes") ? "relogio" :
-                    unidade.includes("%") ? "porcentagem" : unidade.includes("km") ? "rodovia" : "dinheiro";
-      sug.push({tipo:"numero", t0:l.t0, t1:Math.min(l.t1+2, S.duracao), icone, valor, sufixo:" "+m[2], rotulo:"", preview:`${valor} ${m[2]}`, conf:"alta"});
+      const icone = unidade.includes("dia") || unidade.includes("hora") || unidade.includes("ano") || unidade.includes("mes") ? "relogio" :
+                    unidade.includes("%") ? "porcentagem" : "dinheiro";
+      sug.push({tipo:"numero", t0:l.t0, t1:l.t1+2, icone, valor, sufixo:" "+m[2], rotulo:"", preview:`${valor} ${m[2]}`, conf:"alta"});
     }
   });
 
-  // Detectar termos de seguros
-  const TERMOS = [
-    {re:/apólice|contrato\s+de\s+seguro/i, iconeA:"contrato", iconeB:"escudo-ok", rotuloA:"Apólice", rotuloB:"Proteção"},
-    {re:/sinistro|acidente|colisão/i, iconeA:"carro-x", iconeB:"dinheiro", rotuloA:"Sinistro", rotuloB:"Indenização"},
-    {re:/franquia/i, iconeA:"dinheiro", iconeB:"carro", rotuloA:"Franquia", rotuloB:"Reparo"},
-    {re:/cobertura|coberto|cobre/i, iconeA:"escudo-ok", iconeB:"check", rotuloA:"Cobertura", rotuloB:"Garantido"},
-    {re:/guincho|reboque|assistência/i, iconeA:"caminhao", iconeB:"check", rotuloA:"Assistência", rotuloB:"Incluso"},
-    {re:/roubo|furto/i, iconeA:"cadeado", iconeB:"dinheiro", rotuloA:"Roubo/Furto", rotuloB:"Indenização"},
-    {re:/terceiros/i, iconeA:"pessoa", iconeB:"escudo-ok", rotuloA:"Terceiros", rotuloB:"Proteção"},
-    {re:/carro\s+reserva/i, iconeA:"carro", iconeB:"check", rotuloA:"Carro reserva", rotuloB:"Disponível"},
-    {re:/prazo|vencimento/i, iconeA:"calendario", iconeB:"alerta", rotuloA:"Prazo", rotuloB:"Atenção"},
-    {re:/bônus|desconto/i, iconeA:"estrela", iconeB:"porcentagem", rotuloA:"Bônus", rotuloB:"Desconto"}
-  ];
+  // Detectar relações (direito a, não tem direito, causa, gera, resulta)
+  const reRel = /(não\s+)?(tem|dá|gera|causa|resulta|garante|cobre)\s+(direito\s+a|acesso\s+a|cobertura|indenização)/gi;
   texto.forEach(l => {
-    TERMOS.forEach(termo => {
-      if(termo.re.test(l.txt)){
-        const chave = `rel-${termo.rotuloA}-${Math.floor(l.t0/8)}`;
-        if(usado.has(chave)) return; usado.add(chave);
-        const nega = /não\s+(tem|dá|gera|cobre|inclui)/i.test(l.txt);
-        sug.push({tipo:"relacao", t0:l.t0, t1:Math.min(l.t1+3, S.duracao), relacao:nega?"nega":"seta",
-          iconeA:termo.iconeA, rotuloA:termo.rotuloA, iconeB:nega?"x":termo.iconeB, rotuloB:nega?"Não cobre":termo.rotuloB,
-          td:+(l.t0+1.5).toFixed(2), preview:l.txt.slice(0,45)+"...", conf:"alta"});
-      }
-    });
+    if(reRel.test(l.txt)){
+      const nega = /não\s+(tem|dá|gera)/i.test(l.txt);
+      sug.push({tipo:"relacao", t0:l.t0, t1:l.t1+2, relacao:nega?"nega":"seta",
+        rotuloA:"Situação", rotuloB:nega?"Sem direito":"Com direito",
+        iconeA:"doc-ok", iconeB:nega?"x":"check", preview:l.txt.slice(0,50)+"...", conf:"media"});
+    }
   });
 
-  // Detectar alertas
-  const reAlert = /(atenção|cuidado|importante|lembre-se|não\s+esqueça|fique\s+atento|aviso|dica)/gi;
+  // Detectar alertas (atenção, cuidado, importante, lembre-se)
+  const reAlert = /(atenção|cuidado|importante|lembre-se|não\s+esqueça|fique\s+atento)/gi;
   texto.forEach(l => {
     if(reAlert.test(l.txt)){
-      const chave = `alert-${Math.floor(l.t0/8)}`;
-      if(usado.has(chave)) return; usado.add(chave);
-      sug.push({tipo:"alerta", t0:l.t0, t1:Math.min(l.t1+2, S.duracao), icone:"alerta", texto:l.txt.slice(0,40), preview:l.txt.slice(0,45)+"...", conf:"alta"});
+      sug.push({tipo:"alerta", t0:l.t0, t1:l.t1+2, icone:"alerta", texto:l.txt.slice(0,40), preview:l.txt.slice(0,50)+"...", conf:"alta"});
     }
   });
 
-  // Detectar listas
-  const reLista = /(primeiro|segundo|terceiro|três\s+(coisas|tipos|pontos)|existem\s+\d+|são\s+\d+)/gi;
+  // Detectar listas (primeiro, segundo, três coisas, etc.)
+  const reLista = /(primeiro|segundo|terceiro|quarto|três\s+coisas|quatro\s+pontos|alguns\s+pontos)/gi;
   texto.forEach(l => {
     if(reLista.test(l.txt)){
-      const chave = `lista-${Math.floor(l.t0/10)}`;
-      if(usado.has(chave)) return; usado.add(chave);
-      sug.push({tipo:"lista", t0:l.t0, t1:Math.min(l.t1+5, S.duracao), titulo:"Pontos", icone:"check", itens:["Item 1","Item 2","Item 3"], preview:l.txt.slice(0,45)+"...", conf:"media"});
+      sug.push({tipo:"lista", t0:l.t0, t1:l.t1+4, titulo:"Pontos importantes", itens:["Item 1","Item 2","Item 3"], preview:l.txt.slice(0,50)+"...", conf:"media"});
     }
   });
 
-  return sug.sort((a,b) => a.t0 - b.t0).slice(0,15);
+  return sug.slice(0,10); // máximo 10 sugestões
 }
 
 function listarSugestoes(){
-  if(!$("#sugestoesAuto")) return;
   const sug = analisarTranscricao();
   const NT = {relacao:"Relação", numero:"Número", lista:"Lista", alerta:"Alerta"};
   const CONF = {alta:"🟢", media:"🟡"};
 
   if(!sug.length){
-    $("#sugestoesAuto").innerHTML = `<p class="d">Nenhuma sugestão encontrada. Faça a transcrição primeiro.</p>`;
+    $("#sugestoesAuto").innerHTML = `<p class="d">Nenhuma sugestão encontrada. Faça a transcrição primeiro ou crie cartões manualmente.</p>`;
     return;
   }
 
@@ -1013,7 +800,7 @@ function listarSugestoes(){
   window._sugestoes = sug;
 }
 
-if($("#sugestoesAuto")) $("#sugestoesAuto").onclick = e => {
+$("#sugestoesAuto").onclick = e => {
   const item = e.target.closest("[data-sug]");
   if(!item || !window._sugestoes) return;
   const s = window._sugestoes[+item.dataset.sug];
@@ -1026,15 +813,14 @@ if($("#sugestoesAuto")) $("#sugestoesAuto").onclick = e => {
   item.style.pointerEvents = "none";
 };
 
-if($("#analisarTranscricao")) $("#analisarTranscricao").onclick = listarSugestoes;
+$("#analisarTranscricao").onclick = listarSugestoes;
 
 const campo = (rot, k, v, tipo="text", extra="") => `<label class="f">${rot}<input type="${tipo}" ${tipo==="number"?'step="0.05"':""} data-k="${k}" value="${String(v??"").replace(/"/g,"&quot;")}" ${extra}></label>`;
 const sel = (rot, k, opts) => `<label class="f">${rot}<select data-k="${k}">${opts}</select></label>`;
 const agora = k => `<button data-agora="${k}" title="Usar o tempo atual">agora</button>`;
 function listarCards(){
   const NT = {relacao:"Relação", numero:"Número", lista:"Lista", alerta:"Alerta"};
-  if($("#contCard")) $("#contCard").textContent = `(${S.cards.length})`;
-  if(!$("#listaCard")) return;
+  $("#contCard").textContent = `(${S.cards.length})`;
   $("#listaCard").innerHTML = S.cards.map((c,i) => {
     let corpo = "";
     if (c.tipo === "relacao") corpo = `<div class="grid3">${sel("Ícone A","iconeA",optIcones(c.iconeA))}${campo("Rótulo A","rotuloA",c.rotuloA)}
@@ -1049,16 +835,16 @@ function listarCards(){
       <button data-ir="${i}">▶</button><button data-del="${i}">✕</button></div>${corpo}</div>`;
   }).join("") || `<p class="d">Nenhum cartão ainda.</p>`;
 }
-if($("#listaCard")) $("#listaCard").addEventListener("input", e => { const ed = e.target.closest(".card-ed"); if (!ed || !e.target.dataset.k) return;
+$("#listaCard").addEventListener("input", e => { const ed = e.target.closest(".card-ed"); if (!ed || !e.target.dataset.k) return;
   const c = S.cards[+ed.dataset.i], k = e.target.dataset.k;
   c[k] = k === "itens" ? e.target.value.split("\n").slice(0,4) : (e.target.type === "number" ? +e.target.value : e.target.value); render(); });
-if($("#listaCard")) $("#listaCard").addEventListener("click", e => { const ed = e.target.closest(".card-ed"); if (!ed) return; const i = +ed.dataset.i;
+$("#listaCard").addEventListener("click", e => { const ed = e.target.closest(".card-ed"); if (!ed) return; const i = +ed.dataset.i;
   if (e.target.dataset.agora){ S.cards[i][e.target.dataset.agora] = +vid.currentTime.toFixed(2); listarCards(); render(); }
   if (e.target.dataset.ir){ vid.currentTime = S.cards[i].t0 + 0.01; }
   if (e.target.dataset.del){ S.cards.splice(i,1); listarCards(); render(); } });
 
 /* ===================== IA (opcional) ===================== */
-if($("#apiKey")) $("#apiKey").value = store.get("em_key") || "";
+$("#apiKey").value = store.get("em_key") || "";
 $("#sugerir").onclick = async () => {
   const st = $("#statusIA"); st.style.display = "block"; st.className = "status";
   const key = $("#apiKey").value.trim(); if (!key){ st.className = "status bad"; st.textContent = "Informe a chave da API."; return; }
@@ -1116,7 +902,7 @@ function aplicarEstiloUI(){ $("#tamLeg").value = S.estilo.tamLeg; $("#posLeg").v
 const MIMES = ["video/mp4;codecs=avc1.640028,mp4a.40.2","video/mp4;codecs=avc1.42E01F,mp4a.40.2","video/mp4","video/webm;codecs=vp9,opus","video/webm;codecs=vp8,opus","video/webm"];
 const MIME = MIMES.find(m => window.MediaRecorder && MediaRecorder.isTypeSupported(m)) || "";
 $("#statusE").textContent = MIME ? `Formato de saída: ${MIME.startsWith("video/mp4") ? "MP4 (pronto para Instagram)" : "WebM (converta para MP4 antes de publicar)"}` : "Este navegador não grava vídeo. Use Chrome ou Edge atualizados.";
-let audioCtx, audioDest;
+let gravando = false, audioCtx, audioDest;
 $("#exportar").onclick = async () => {
   if (!MIME) return;
   const btn = $("#exportar"), st = $("#statusE"), barra = $("#barraE");
@@ -1176,23 +962,18 @@ $("#modoCompacto").onchange = e => {
   }
 };
 // Restaurar estado
-if (store.get("em_compacto") && $("#modoCompacto")){ $("#modoCompacto").checked = true; $("#modoCompacto").dispatchEvent(new Event("change")); }
+if (store.get("em_compacto")){ $("#modoCompacto").checked = true; $("#modoCompacto").dispatchEvent(new Event("change")); }
 
 /* ===================== Conexões ===================== */
-function carregarCon(){
-  let c = {}; try{ c = JSON.parse(store.get("em_con")||"{}"); }catch(e){}
-  if($("#provedor")) $("#provedor").value = c.prov || "groq";
-  if($("#apiBase")) $("#apiBase").value = c.base || PROV[c.prov||"groq"][0];
-  if($("#apiModelo")) $("#apiModelo").value = c.modelo || PROV[c.prov||"groq"][1];
-  if($("#apiKeyT")) $("#apiKeyT").value = c.key || "";
-  if(c.key && $("#motor")) $("#motor").value = store.get("em_motor") || "local";
-}
-if($("#provedor")) $("#provedor").onchange = () => { const [b,m] = PROV[$("#provedor").value]; if($("#apiBase")) $("#apiBase").value = b; if($("#apiModelo")) $("#apiModelo").value = m; };
-if($("#motor")) $("#motor").onchange = () => store.set("em_motor", $("#motor").value);
-if($("#salvarCon")) $("#salvarCon").onclick = () => { store.set("em_con", JSON.stringify(conexoes())); const st = $("#statusCon"); if(st){ st.style.display="block"; st.className="status ok"; st.textContent="Conexões salvas."; } };
-if($("#testarCon")) $("#testarCon").onclick = async () => { const st = $("#statusCon"); if(!st) return; st.style.display="block"; st.className="status"; st.textContent="Testando...";
-  try{ await chamarNuvem(new Float32Array(16000)); st.className="status ok"; st.textContent="Conexão OK!"; store.set("em_con", JSON.stringify(conexoes())); }
-  catch(e){ st.className="status bad"; st.textContent="Falhou: " + (e.message||e); } };
+function carregarCon(){ let c = {}; try{ c = JSON.parse(store.get("em_con")||"{}"); }catch(e){}
+  $("#provedor").value = c.prov || "groq"; $("#apiBase").value = c.base || PROV[$("#provedor").value][0]; $("#apiModelo").value = c.modelo || PROV[$("#provedor").value][1]; $("#apiKeyT").value = c.key || "";
+  if (c.key) $("#motor").value = store.get("em_motor") || "local"; }
+$("#provedor").onchange = () => { const [b,m] = PROV[$("#provedor").value]; $("#apiBase").value = b; $("#apiModelo").value = m; };
+$("#motor").onchange = () => store.set("em_motor", $("#motor").value);
+$("#salvarCon").onclick = () => { store.set("em_con", JSON.stringify(conexoes())); const st = $("#statusCon"); st.style.display="block"; st.className="status ok"; st.textContent="Conexões salvas neste computador."; };
+$("#testarCon").onclick = async () => { const st = $("#statusCon"); st.style.display="block"; st.className="status"; st.textContent="Testando com 1 s de silêncio…";
+  try{ await chamarNuvem(new Float32Array(16000)); st.className="status ok"; st.textContent="Conexão funcionando. Escolha 'Nuvem' como motor na aba Transcrição."; store.set("em_con", JSON.stringify(conexoes())); }
+  catch(e){ st.className="status bad"; st.textContent="Falhou: " + (e.message||e) + (String(e).includes("fetch") ? "\nPossível bloqueio de rede/firewall ou CORS do provedor." : ""); } };
 $("#diagnosticar").onclick = async () => {
   const L = [], add = (ok, nome, det) => L.push(`<div class="item" style="grid-template-columns:28px 220px 1fr"><b style="color:${ok===true?"var(--ok)":ok===false?"var(--bad)":"var(--muted)"}">${ok===true?"✓":ok===false?"✕":"–"}</b><b>${nome}</b><span>${det}</span></div>`);
   const nav = navigator.userAgent; add(/Chrome|Edg/.test(nav), "Navegador", /Electron/.test(nav) ? "Aplicativo Estúdio Motion (Chromium)" : (/Edg/.test(nav) ? "Edge" : /Chrome/.test(nav) ? "Chrome" : "Use Chrome ou Edge"));
@@ -1225,8 +1006,6 @@ aplicarEstiloUI(); listarLegendas(); listarCards(); render();
 if ("serviceWorker" in navigator && !window.require) {
   navigator.serviceWorker.register("./sw.js").catch(() => {});
 }
-
-}); // fim DOMContentLoaded
 </script>
 </body>
 </html>
