@@ -1,0 +1,1011 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, maximum-scale=1">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="theme-color" content="#E2552F">
+<link rel="manifest" href="manifest.json">
+<link rel="apple-touch-icon" href="icon-192.png">
+<title>Estúdio Motion — vídeo de fala com legenda e cartões</title>
+<style>
+:root{
+  --bg:#F3F1EC; --panel:#FFFFFF; --ink:#1A1D24; --muted:#636A75; --line:#DAD6CE;
+  --accent:#E2552F; --accent-ink:#FFFFFF; --ok:#1F7A4D; --bad:#B42318; --soft:#F7F5F1;
+  color-scheme:light;
+  box-sizing:border-box; padding-top:env(safe-area-inset-top,0px); padding-bottom:env(safe-area-inset-bottom,0px);
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    --bg:#121317; --panel:#1B1D23; --ink:#ECEDEF; --muted:#9AA0AA; --line:#2E313A;
+    --accent:#FF6B47; --accent-ink:#121317; --ok:#4CC28A; --bad:#F06A5E; --soft:#22252C; color-scheme:dark;
+  }
+}
+:root[data-theme="dark"]{
+  --bg:#121317; --panel:#1B1D23; --ink:#ECEDEF; --muted:#9AA0AA; --line:#2E313A;
+  --accent:#FF6B47; --accent-ink:#121317; --ok:#4CC28A; --bad:#F06A5E; --soft:#22252C; color-scheme:dark;
+}
+*{box-sizing:border-box}
+html,body{height:100%}
+body{margin:0;background:var(--bg);color:var(--ink);font:15px/1.45 "Segoe UI","Helvetica Neue",Arial,sans-serif}
+header{display:flex;align-items:center;gap:14px;padding:12px 20px;border-bottom:1px solid var(--line);background:var(--panel)}
+header h1{margin:0;font-size:19px;font-weight:800;letter-spacing:-.01em}
+header h1 span{color:var(--accent)}
+header .sub{color:var(--muted);font-size:13px;margin-right:auto}
+.app{display:grid;grid-template-columns:minmax(300px,420px) 1fr;gap:20px;padding:20px;max-width:1500px;margin:0 auto}
+.palco{position:sticky;top:12px;align-self:start;display:flex;flex-direction:column;gap:10px}
+.tela{background:#000;border-radius:14px;overflow:hidden;aspect-ratio:9/16;width:100%;position:relative;box-shadow:0 18px 40px rgba(0,0,0,.25)}
+canvas#cv{width:100%;height:100%;display:block}
+.vazio{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;text-align:center;color:#C9CCD3;padding:30px;font-size:15px}
+.controles{display:flex;gap:8px;align-items:center}
+.controles input[type=range]{flex:1;accent-color:var(--accent)}
+.tempo{font:600 13px ui-monospace,Consolas,monospace;color:var(--muted);min-width:96px;text-align:right}
+button,.btn{font:inherit;font-weight:600;border:1px solid var(--line);background:var(--panel);color:var(--ink);border-radius:9px;padding:8px 13px;cursor:pointer;min-height:38px}
+button:hover,.btn:hover{border-color:var(--ink)}
+button.pri,.btn.pri{background:var(--accent);border-color:var(--accent);color:var(--accent-ink)}
+button:disabled{opacity:.45;cursor:not-allowed}
+.btn input{display:none}
+.painel{background:var(--panel);border:1px solid var(--line);border-radius:14px;min-height:70vh;display:flex;flex-direction:column}
+nav.abas{display:flex;gap:2px;padding:8px 8px 0;border-bottom:1px solid var(--line);flex-wrap:wrap}
+nav.abas button{border:0;border-radius:9px 9px 0 0;background:transparent;color:var(--muted);padding:10px 14px}
+nav.abas button.on{background:var(--soft);color:var(--ink);box-shadow:inset 0 -3px 0 var(--accent)}
+nav.abas b{display:inline-block;width:20px;height:20px;border-radius:50%;background:var(--line);color:var(--ink);font-size:12px;line-height:20px;text-align:center;margin-right:6px}
+nav.abas button.on b{background:var(--accent);color:var(--accent-ink)}
+.aba{display:none;padding:20px;overflow:auto}
+.aba.on{display:block}
+.aba-wrap{border-bottom:1px solid var(--line)}
+.aba-wrap:last-child{border-bottom:none}
+.aba-head{display:flex;align-items:center;gap:10px;padding:14px 20px;cursor:pointer;background:var(--soft);user-select:none}
+.aba-head:hover{background:var(--line)}
+.aba-head b{width:26px;height:26px;border-radius:50%;background:var(--line);color:var(--ink);font-size:13px;line-height:26px;text-align:center;flex-shrink:0}
+.aba-head.done b{background:var(--ok);color:#fff}
+.aba-head .seta{margin-left:auto;font-size:12px;color:var(--muted);transition:transform .2s}
+.aba-wrap.aberto .seta{transform:rotate(180deg)}
+.aba-wrap.aberto .aba-head b{background:var(--accent);color:var(--accent-ink)}
+.aba-corpo{display:none;padding:20px}
+.aba-wrap.aberto .aba-corpo{display:block}
+.modo-abas .aba-wrap{border:none}
+.modo-abas .aba-head{display:none}
+.modo-abas .aba-corpo{display:none;padding:20px}
+.modo-abas .aba-wrap.aberto .aba-corpo{display:block}
+h2{margin:0 0 6px;font-size:20px}
+h3{margin:18px 0 8px;font-size:15px}
+p.d{color:var(--muted);margin:0 0 14px;max-width:70ch}
+label.f{display:flex;flex-direction:column;gap:4px;font-size:13px;color:var(--muted);font-weight:600}
+input[type=text],input[type=number],input[type=password],select,textarea{font:inherit;color:var(--ink);background:var(--soft);border:1px solid var(--line);border-radius:8px;padding:7px 9px;min-height:36px}
+textarea{width:100%;resize:vertical}
+.linha{display:flex;gap:10px;flex-wrap:wrap;align-items:flex-end}
+.status{font-size:13px;padding:9px 12px;border-radius:9px;background:var(--soft);border:1px solid var(--line);margin-top:12px;white-space:pre-wrap}
+.status.ok{border-color:var(--ok);color:var(--ok)}
+.status.bad{border-color:var(--bad);color:var(--bad)}
+.barra{height:8px;background:var(--line);border-radius:5px;overflow:hidden;margin-top:8px}
+.barra i{display:block;height:100%;width:0;background:var(--accent);transition:width .2s}
+.lista{display:flex;flex-direction:column;gap:8px}
+.item{display:grid;grid-template-columns:150px 1fr auto;gap:8px;align-items:start;padding:8px;border:1px solid var(--line);border-radius:10px;background:var(--soft)}
+.item.atual{border-color:var(--accent)}
+.item .t{display:flex;gap:4px;align-items:center;font:12px ui-monospace,Consolas,monospace}
+.item .t input{width:64px;min-height:30px;padding:4px}
+.item textarea{min-height:52px;font-size:14px}
+.card-ed{border:1px solid var(--line);border-radius:12px;padding:12px;background:var(--soft);display:flex;flex-direction:column;gap:10px}
+.card-ed .topo{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+.card-ed .topo strong{margin-right:auto}
+.grid3{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:8px}
+.temas{display:grid;grid-template-columns:repeat(auto-fit,minmax(170px,1fr));gap:10px}
+.tema{border:2px solid var(--line);border-radius:12px;padding:12px;cursor:pointer;background:var(--soft);text-align:left;min-height:auto}
+.tema.on{border-color:var(--accent)}
+.tema .amostra{height:54px;border-radius:8px;display:flex;align-items:center;justify-content:center;gap:10px;font-weight:700;font-size:13px;margin-bottom:8px}
+.tema .amostra i{width:22px;height:22px;border-radius:50%;display:inline-block}
+.manual{max-width:76ch}
+.manual li{margin-bottom:6px}
+.manual code{background:var(--soft);padding:1px 5px;border-radius:5px;font-size:13px}
+.kbd{font:12px ui-monospace,monospace;background:var(--soft);border:1px solid var(--line);border-radius:5px;padding:1px 6px}
+@media (max-width:880px){
+  .app{grid-template-columns:1fr;padding:10px;gap:10px}
+  .palco{position:static;max-width:100%;margin:0 auto}
+  .tela{aspect-ratio:9/16;max-height:50vh}
+  header{flex-wrap:wrap;padding:10px;gap:8px}
+  header h1{font-size:17px}
+  header .sub{display:none}
+  nav.abas{overflow-x:auto;flex-wrap:nowrap;-webkit-overflow-scrolling:touch}
+  nav.abas button{white-space:nowrap;padding:8px 10px;font-size:13px}
+  .linha{flex-direction:column}
+  .grid3{grid-template-columns:1fr}
+  button,.btn{min-height:44px;padding:10px 14px}
+  input,select,textarea{min-height:44px;font-size:16px}
+}
+</style>
+</head>
+<body>
+<header>
+  <h1>Estúdio <span>Motion</span></h1>
+  <div class="sub">vídeo de fala → legenda + cartões animados → MP4 9:16</div>
+  <label class="btn" style="display:flex;align-items:center;gap:6px;cursor:pointer"><input type="checkbox" id="modoCompacto" style="width:16px;height:16px">Modo simples</label>
+  <label class="btn">Abrir projeto<input id="abrirProj" type="file" accept=".json"></label>
+  <button id="salvarProj">Salvar projeto</button>
+</header>
+
+<div class="app">
+  <section class="palco">
+    <div class="tela">
+      <canvas id="cv" width="1080" height="1920"></canvas>
+      <div class="vazio" id="vazio">Abra um vídeo na etapa 1 para começar.</div>
+    </div>
+    <div class="controles">
+      <button id="play" disabled>▶</button>
+      <input id="scrub" type="range" min="0" max="1" step="0.01" value="0" disabled>
+      <span class="tempo" id="tempo">0,00 / 0,00</span>
+    </div>
+    <video id="vid" playsinline crossorigin="anonymous" style="display:none"></video>
+  </section>
+
+  <section class="painel">
+    <nav class="abas" id="abas">
+      <button data-a="a1" class="on"><b>1</b>Vídeo</button>
+      <button data-a="a2"><b>2</b>Transcrição</button>
+      <button data-a="a3"><b>3</b>Cartões</button>
+      <button data-a="a4"><b>4</b>Estilo</button>
+      <button data-a="a5"><b>5</b>Exportar</button>
+      <button data-a="a7">Conexões</button>
+      <button data-a="a6">Manual</button>
+    </nav>
+
+    <div class="aba on" id="a1">
+      <h2>Vídeo bruto</h2>
+      <p class="d">Use o arquivo original do celular, gravado na vertical. O vídeo fica só no seu computador; nada é enviado para servidor.</p>
+      <label class="btn pri">Escolher vídeo<input id="arqVideo" type="file" accept="video/*"></label>
+      <div class="status" id="infoVideo">Nenhum vídeo carregado.</div>
+    </div>
+
+    <div class="aba" id="a2">
+      <h2>Transcrição e legendas</h2>
+      <p class="d">A transcrição roda no seu navegador com o modelo Whisper. Na primeira vez o modelo é baixado (base ≈ 80 MB, small ≈ 250 MB) e fica em cache para as próximas.</p>
+      <div class="linha">
+        <label class="f">Motor
+          <select id="motor">
+            <option value="local">Neste computador (gratuito)</option>
+            <option value="nuvem">Nuvem via API (rápido, configure em Conexões)</option>
+          </select></label>
+        <label class="f">Modelo
+          <select id="modelo">
+            <option value="onnx-community/whisper-base">Whisper base — rápido</option>
+            <option value="onnx-community/whisper-small" selected>Whisper small — mais preciso</option>
+          </select></label>
+        <button class="pri" id="transcrever" disabled>Transcrever</button>
+        <label class="btn">Importar SRT<input id="arqSrt" type="file" accept=".srt,.vtt,.txt"></label>
+      </div>
+      <div class="barra"><i id="barraT"></i></div>
+      <div class="status" id="statusT">Aguardando vídeo.</div>
+
+      <h3>⚠️ Correções de dicção (importante!)</h3>
+      <p class="d">O Whisper pode confundir termos técnicos. As correções abaixo são aplicadas automaticamente. Formato: <span class="kbd">errado = certo</span>. Já incluímos termos comuns de seguros.</p>
+      <textarea id="glossario" rows="5" placeholder="pânico = pane&#10;polícia = apólice" style="border:2px solid var(--accent);background:rgba(226,85,47,0.08)"></textarea>
+      <div class="linha" style="margin-top:8px">
+        <button id="aplicarGloss">Aplicar correções</button>
+        <button id="refazerBlocos">Reorganizar blocos</button>
+        <label class="f" style="flex-direction:row;align-items:center;gap:6px">Máx. caracteres/linha <input id="maxC" type="number" value="30" min="16" max="42" style="width:70px"></label>
+      </div>
+
+      <h3>Blocos de legenda <small style="color:var(--muted);font-weight:400" id="contLeg"></small></h3>
+      <div class="lista" id="listaLeg"></div>
+    </div>
+
+    <div class=”aba” id=”a3”>
+      <h2>Cartões</h2>
+      <p class=”d”>Cartões reforçam ideias importantes. Clique nas sugestões abaixo ou crie manualmente.</p>
+
+      <h3>💡 Sugestões detectadas na transcrição</h3>
+      <p class=”d”>Clique em uma sugestão para adicionar o cartão automaticamente.</p>
+      <div id=”sugestoesAuto” class=”lista” style=”max-height:200px;overflow-y:auto”></div>
+      <button id=”analisarTranscricao” class=”pri” style=”margin-top:10px”>🔍 Analisar transcrição</button>
+
+      <h3>Criar manualmente</h3>
+      <div class=”linha”>
+        <button data-novo=”relacao”>+ Relação A → B</button>
+        <button data-novo=”numero”>+ Número</button>
+        <button data-novo=”lista”>+ Lista</button>
+        <button data-novo=”alerta”>+ Alerta</button>
+      </div>
+
+      <details style=”margin-top:16px”>
+        <summary style=”cursor:pointer;color:var(--muted)”>⚙️ Sugestão avançada com IA (opcional)</summary>
+        <p class=”d” style=”margin-top:8px”>Com chave da API Anthropic, o Claude sugere cartões mais elaborados.</p>
+        <div class=”linha”>
+          <label class=”f” style=”flex:1;min-width:220px”>Chave da API<input id=”apiKey” type=”password” placeholder=”sk-ant-...”></label>
+          <button class=”pri” id=”sugerir”>Sugerir com Claude</button>
+        </div>
+        <div class=”status” id=”statusIA” style=”display:none”></div>
+      </details>
+
+      <h3>Cartões do vídeo <small style=”color:var(--muted);font-weight:400” id=”contCard”></small></h3>
+      <div class=”lista” id=”listaCard”></div>
+    </div>
+
+    <div class="aba" id="a4">
+      <h2>Estilo</h2>
+      <p class="d">O tema muda cartão, ícones e destaques. A legenda fica sempre branca com contorno para garantir leitura.</p>
+      <div class="temas" id="temas"></div>
+      <h3>Legenda</h3>
+      <div class="linha">
+        <label class="f">Tamanho (px)<input id="tamLeg" type="number" value="50" min="34" max="72"></label>
+        <label class="f">Posição vertical (px do topo)<input id="posLeg" type="number" value="1615" min="1000" max="1750"></label>
+        <label class="f">Posição do cartão (px do topo)<input id="posCard" type="number" value="1284" min="200" max="1500"></label>
+        <label class="f">Brilho do vídeo<input id="brilho" type="range" min="0.8" max="1.3" step="0.02" value="1.04"></label>
+      </div>
+      <h3>Logo da empresa</h3>
+      <p class="d">Adicione sua logo para aparecer no vídeo. Formatos: PNG, JPG, SVG. Recomendado: fundo transparente.</p>
+      <div class="linha">
+        <label class="btn">Escolher logo<input id="arqLogo" type="file" accept="image/*"></label>
+        <button id="removerLogo">Remover logo</button>
+        <label class="f">Posição
+          <select id="posLogo">
+            <option value="inf-esq">Inferior esquerdo</option>
+            <option value="inf-dir">Inferior direito</option>
+            <option value="sup-esq">Superior esquerdo</option>
+            <option value="sup-dir">Superior direito</option>
+          </select>
+        </label>
+        <label class="f">Tamanho (px)<input id="tamLogo" type="number" value="120" min="40" max="300"></label>
+        <label class="f">Opacidade<input id="opacLogo" type="range" min="0.3" max="1" step="0.05" value="0.85"></label>
+      </div>
+      <div class="status" id="infoLogo">Nenhuma logo carregada.</div>
+    </div>
+
+    <div class="aba" id="a5">
+      <h2>Exportar</h2>
+      <p class="d">O vídeo é gravado em tempo real (um vídeo de 60 s leva 60 s). Mantenha esta aba visível durante a gravação. Saída 1080×1920, 30 fps, com o áudio original.</p>
+      <div class="linha">
+        <label class="f">Qualidade
+          <select id="bitrate"><option value="8000000">Alta (8 Mbps)</option><option value="5000000" selected>Padrão (5 Mbps)</option><option value="3000000">Leve (3 Mbps)</option></select></label>
+        <button class="pri" id="exportar" disabled>Gravar MP4</button>
+      </div>
+      <div class="barra"><i id="barraE"></i></div>
+      <div class="status" id="statusE">Formato de saída: verificando…</div>
+      <h3>Legenda do post</h3>
+      <p class="d">Texto pronto para colar no Instagram, gerado a partir das legendas (edite à vontade).</p>
+      <textarea id="post" rows="6"></textarea>
+      <div class="linha" style="margin-top:8px"><button id="gerarPost">Gerar texto</button><button id="copiarPost">Copiar</button></div>
+    </div>
+
+    <div class="aba" id="a7">
+      <h2>Conexões e diagnóstico</h2>
+      <p class="d">Tudo é opcional. Sem nenhuma chave, o sistema funciona com transcrição local e cartões manuais. As chaves ficam salvas apenas neste computador.</p>
+      <div class="linha"><button class="pri" id="diagnosticar">Verificar ambiente</button><button id="prebaixar">Pré-baixar modelo (uso offline)</button></div>
+      <div class="lista" id="diag" style="margin-top:12px"></div>
+      <h3>Transcrição em nuvem (API compatível com OpenAI)</h3>
+      <p class="d">Recomendado para computadores modestos: 1 min de vídeo transcreve em segundos. Funciona com OpenAI (whisper-1) ou Groq (whisper-large-v3, com plano gratuito).</p>
+      <div class="grid3">
+        <label class="f">Provedor<select id="provedor"><option value="groq">Groq</option><option value="openai">OpenAI</option><option value="outro">Outro (compatível)</option></select></label>
+        <label class="f">Endereço da API<input id="apiBase" type="text"></label>
+        <label class="f">Modelo<input id="apiModelo" type="text"></label>
+        <label class="f">Chave<input id="apiKeyT" type="password" placeholder="gsk_... ou sk-..."></label>
+      </div>
+      <div class="linha" style="margin-top:8px"><button id="salvarCon">Salvar conexões</button><button id="testarCon">Testar transcrição em nuvem</button></div>
+      <div class="status" id="statusCon" style="display:none"></div>
+      <h3>Claude (sugestão de cartões)</h3>
+      <p class="d">A chave da Anthropic é informada na aba Cartões. Crie em console.anthropic.com → API Keys.</p>
+    </div>
+
+    <div class="aba manual" id="a6">
+      <h2>Como usar</h2>
+      <p class="d">Tudo roda no navegador do seu computador. Não precisa instalar nada nem ter conta de IA; a chave da API é opcional e só serve para sugerir cartões.</p>
+      <h3>Requisitos</h3>
+      <ul>
+        <li><b>Google Chrome ou Microsoft Edge</b> atualizados, em computador (8 GB de RAM recomendados).</li>
+        <li>Internet na primeira transcrição, para baixar o modelo (fica em cache depois).</li>
+        <li>Abra o aplicativo <b>Estúdio Motion</b> (pasta do pacote) ou este arquivo com duplo clique no Chrome/Edge.</li>
+        <li>Na aba <b>Conexões</b>, clique em <i>Verificar ambiente</i> para ver o que está disponível. Para usar sem internet, clique em <i>Pré-baixar modelo</i> uma vez.</li>
+        <li>Computador lento ou rede bloqueada para modelos: configure a <b>transcrição em nuvem</b> (Groq tem plano gratuito) e escolha o motor <i>Nuvem</i>.</li>
+      </ul>
+      <h3>Passo a passo</h3>
+      <ol>
+        <li><b>Vídeo:</b> escolha o arquivo original do celular (vertical). Evite vídeos reenviados pelo WhatsApp.</li>
+        <li><b>Transcrição:</b> clique em Transcrever e aguarde (≈ 1–3 min para 1 min de vídeo). Revise os blocos: corrija palavras direto no texto ou use as correções em massa.</li>
+        <li><b>Cartões:</b> crie cartões nos momentos-chave. Tipos: <i>Relação</i> (A leva a B, ou A não dá direito a B), <i>Número</i> (ex.: 15 dias), <i>Lista</i> (2–4 itens) e <i>Alerta</i>.</li>
+        <li><b>Estilo:</b> escolha o tema de cor e ajuste a legenda.</li>
+        <li><b>Exportar:</b> clique em Gravar MP4 e aguarde a duração do vídeo. O arquivo é baixado automaticamente.</li>
+        <li><b>Publicar:</b> envie o MP4 para o celular e publique como Reels; use o texto gerado como legenda do post.</li>
+      </ol>
+      <h3>Dicas e problemas comuns</h3>
+      <ul>
+        <li><b>Salvar projeto</b> guarda legendas, cartões e estilo em um .json (o vídeo não vai junto). Para retomar, abra o vídeo e depois o projeto.</li>
+        <li>Se a transcrição falhar por memória, use o modelo <i>base</i> ou importe um SRT gerado por outro app.</li>
+        <li>Se o navegador não gravar MP4, o arquivo sai em WebM; o Instagram aceita após conversão em apps como CapCut, ou envie direto pelo navegador do computador.</li>
+        <li>Rosto escuro: aumente o brilho na aba Estilo.</li>
+        <li>A gravação usa a reprodução real: não minimize a janela nem troque de aba durante a exportação.</li>
+      </ul>
+    </div>
+  </section>
+</div>
+
+<script type="module">
+/* ===================== Estado ===================== */
+const W = 1080, H = 1920;
+const TEMAS = {
+  "marinho-dourado": {nome:"Marinho e dourado", card:"rgba(27,46,70,0.88)", borda:"rgba(207,178,119,0.22)", cor:"#CFB277", rotulo:"#E8E8EA", contorno:"#000000"},
+  "grafite-coral":   {nome:"Grafite e coral",   card:"rgba(28,28,32,0.90)", borda:"rgba(255,107,87,0.38)", cor:"#FF6B57", rotulo:"#F4F1EE", contorno:"#000000"},
+  "petroleo-lima":   {nome:"Petróleo e lima",   card:"rgba(10,61,66,0.90)", borda:"rgba(200,240,90,0.32)", cor:"#C8F05A", rotulo:"#EAF5F2", contorno:"#062628"},
+  "claro-eletrico":  {nome:"Claro e elétrico",  card:"rgba(255,255,255,0.94)", borda:"rgba(37,99,255,0.28)", cor:"#2563FF", rotulo:"#14213D", contorno:"#0B1530"}
+};
+const S = {
+  legendas: [], cards: [], palavras: [],
+  estilo: {tema:"marinho-dourado", tamLeg:50, posLeg:1615, posCard:1284, brilho:1.04, logo:{pos:"inf-esq", tam:120, opac:0.85}},
+  duracao: 0, nomeVideo: ""
+};
+let logoImg = null;
+const $ = s => document.querySelector(s);
+const fmt = t => (t||0).toFixed(2).replace(".", ",");
+const store = {get:k=>{try{return localStorage.getItem(k)}catch(e){return null}}, set:(k,v)=>{try{localStorage.setItem(k,v)}catch(e){}}};
+
+/* ===================== Ícones (traço, viewBox 48) ===================== */
+const C = (cx,cy,r) => `M${cx-r} ${cy}a${r} ${r} 0 1 0 ${2*r} 0a${r} ${r} 0 1 0 ${-2*r} 0`;
+const ICONES = {
+  chave:"M30 6a10 10 0 0 0-9.5 13L7 32.5a4 4 0 0 0 5.7 5.7L26 24.8A10 10 0 0 0 39.6 13l-6.3 6.3-5-1.3-1.3-5L33.3 6.6A10 10 0 0 0 30 6z",
+  carro:"M8 30v-6l4-9h24l4 9v6zM8 30v5h5v-5M35 30v5h5v-5"+C(15,26,2)+C(33,26,2),
+  "carro-x":"M8 32v-6l4-9h24l4 9v6z"+C(15,27,2)+C(33,27,2)+"M14 40L40 8",
+  "escudo-ok":"M24 5l15 6v11c0 10-6.5 17-15 21-8.5-4-15-11-15-21V11zM17 24l5 5 9-10",
+  "doc-ok":"M12 5h17l9 9v29H12zM29 5v9h9M18 28l4 4 8-9",
+  "doc-x":"M12 5h17l9 9v29H12zM29 5v9h9M19 23l10 10M29 23L19 33",
+  motor:"M10 18h6l3-4h10l3 4h4v6h4v-4h3v14h-3v-4h-4v6h-6l-3 4H19l-3-4h-6zM5 22v8",
+  dinheiro:"M8 13h32a3 3 0 0 1 3 3v16a3 3 0 0 1-3 3H8a3 3 0 0 1-3-3V16a3 3 0 0 1 3-3z"+C(24,24,5)+"M10 18v12M38 18v12",
+  alerta:"M24 6L44 41H4zM24 19v10M24 34v1",
+  relogio:C(24,24,18)+"M24 13v11l7 5",
+  check:C(24,24,18)+"M16 24l6 6 11-12",
+  x:C(24,24,18)+"M17 17l14 14M31 17L17 31",
+  pessoa:C(24,15,7)+"M10 42c0-8 6-13 14-13s14 5 14 13",
+  predio:"M10 42V8h20v34M30 18h8v24M6 42h36M16 14h2M22 14h2M16 21h2M22 21h2M16 28h2M22 28h2",
+  rodovia:"M18 6L8 42M30 6l10 36M24 8v5M24 19v6M24 31v7",
+  mapa:"M6 11l12-5 12 5 12-5v31l-12 5-12-5-12 5zM18 6v31M30 11v31",
+  casa:"M6 22L24 7l18 15M11 18v23h26V18M20 41V29h8v12",
+  coracao:"M24 41S6 30 6 17a9 9 0 0 1 18-3 9 9 0 0 1 18 3c0 13-18 24-18 24z",
+  celular:"M15 4h18a3 3 0 0 1 3 3v34a3 3 0 0 1-3 3H15a3 3 0 0 1-3-3V7a3 3 0 0 1 3-3zM22 38h4",
+  raio:"M27 4L10 27h12l-3 17 19-24H26z",
+  calendario:"M8 10h32v32H8zM8 18h32M16 5v9M32 5v9M15 26h4M22 26h4M29 26h4M15 33h4M22 33h4",
+  grafico:"M6 42h36M11 36V24M20 36V14M29 36V20M38 36V8",
+  porcentagem:"M38 10L10 38"+C(14,14,5)+C(34,34,5),
+  cadeado:"M12 22h24v20H12zM17 22v-7a7 7 0 0 1 14 0v7M24 30v5",
+  ferramenta:"M8 40l14-14M26 6a8 8 0 0 0 10 10l6 6-8 8-6-6A8 8 0 0 0 18 14l-4-4 4-4z",
+  lampada:"M18 34h12M19 40h10M24 6a12 12 0 0 0-7 22v6h14v-6A12 12 0 0 0 24 6z",
+  balao:"M8 9h32v22H22l-9 8v-8H8z",
+  estrela:"M24 5l5.6 12.2 13.4 1.5-10 9 2.9 13.2L24 34.2 12.1 40.9 15 27.7 5 18.7l13.4-1.5z",
+  caminhao:"M4 12h24v20H4zM28 19h9l7 7v6H28zM4 32h40"+C(12,35,4)+C(36,35,4),
+  hospital:"M8 8h32v34H8zM24 15v14M17 22h14",
+  martelo:"M30 6l12 12-5 5-12-12zM27 15L8 34a3 3 0 0 0 4 4l19-19"
+};
+const P2D = {}; for (const k in ICONES) P2D[k] = new Path2D(ICONES[k]);
+function icone(ctx, nome, x, y, tam, cor){
+  ctx.save(); ctx.translate(x - tam/2, y - tam/2); ctx.scale(tam/48, tam/48);
+  ctx.strokeStyle = cor; ctx.lineWidth = 2.6; ctx.lineCap = "round"; ctx.lineJoin = "round";
+  ctx.stroke(P2D[nome] || P2D.check); ctx.restore();
+}
+
+/* ===================== Easing ===================== */
+const clamp = (v,a=0,b=1) => Math.max(a, Math.min(b, v));
+const eOut = p => 1 - Math.pow(1 - clamp(p), 3);
+const eBack = p => { p = clamp(p); const c = 1.6; return 1 + (c+1)*Math.pow(p-1,3) + c*Math.pow(p-1,2); };
+const prog = (t, ini, dur) => clamp((t - ini) / dur);
+
+/* ===================== Desenho ===================== */
+const cv = $("#cv"), ctx = cv.getContext("2d"), vid = $("#vid");
+const FONTE = '"Segoe UI","Helvetica Neue",Arial,sans-serif';
+
+function rr(x,y,w,h,r){ ctx.beginPath(); ctx.moveTo(x+r,y); ctx.arcTo(x+w,y,x+w,y+h,r); ctx.arcTo(x+w,y+h,x,y+h,r); ctx.arcTo(x,y+h,x,y,r); ctx.arcTo(x,y,x+w,y,r); ctx.closePath(); }
+
+function desenharVideo(){
+  ctx.fillStyle = "#000"; ctx.fillRect(0,0,W,H);
+  if (!vid.videoWidth) return;
+  const vw = vid.videoWidth, vh = vid.videoHeight, esc = Math.max(W/vw, H/vh);
+  const dw = vw*esc, dh = vh*esc;
+  ctx.filter = `brightness(${S.estilo.brilho}) saturate(1.05)`;
+  ctx.drawImage(vid, (W-dw)/2, (H-dh)/2, dw, dh);
+  ctx.filter = "none";
+}
+
+function textoLabel(txt, x, y, cor, tam=32, peso=500){
+  ctx.font = `${peso} ${tam}px ${FONTE}`; ctx.fillStyle = cor; ctx.textAlign = "center"; ctx.textBaseline = "middle";
+  ctx.fillText(txt, x, y);
+}
+
+function desenharCard(c, t){
+  const T = TEMAS[S.estilo.tema];
+  const ini = +c.t0, fim = +c.t1;
+  if (t < ini || t > fim) return;
+  const aIn = eOut(prog(t, ini, 0.35)), aOut = 1 - prog(t, fim - 0.3, 0.3);
+  const alpha = Math.min(aIn, aOut);
+  let x = 124, w = 832, h = 220, y = S.estilo.posCard;
+  if (c.tipo === "lista"){ const n = (c.itens||[]).filter(Boolean).length; h = 70 + n*72; y = S.estilo.posCard + 220 - h; }
+  ctx.save(); ctx.globalAlpha = alpha; ctx.translate(0, (1-aIn)*24);
+  ctx.shadowColor = "rgba(0,0,0,.35)"; ctx.shadowBlur = 40; ctx.shadowOffsetY = 10;
+  rr(x,y,w,h,18); ctx.fillStyle = T.card; ctx.fill();
+  ctx.shadowColor = "transparent"; ctx.lineWidth = 1.5; ctx.strokeStyle = T.borda; ctx.stroke();
+
+  if (c.tipo === "relacao"){
+    const td = +(c.td ?? (ini + 1.5));
+    const sE = eBack(prog(t, ini+0.15, 0.35));
+    ctx.save(); ctx.translate(320, y+78); ctx.scale(sE, sE); ctx.globalAlpha = alpha*clamp(sE);
+    icone(ctx, c.iconeA||"check", 0, 0, 92, T.cor); ctx.restore();
+    ctx.globalAlpha = alpha*eOut(prog(t, ini+0.15, 0.35)); textoLabel(c.rotuloA||"", 320, y+168, T.rotulo);
+    if (c.rotuloB){
+      const pc = eOut(prog(t, td, 0.5)), x0 = 432, x1 = 648, yc = y+80;
+      ctx.globalAlpha = alpha; ctx.strokeStyle = T.cor; ctx.lineWidth = 3; ctx.lineCap = "round";
+      ctx.beginPath(); ctx.moveTo(x0, yc); ctx.lineTo(x0 + (x1-x0)*pc, yc); ctx.stroke();
+      const pm = prog(t, td+0.4, 0.2);
+      if (pm > 0){
+        ctx.globalAlpha = alpha*pm;
+        if (c.relacao === "nega"){ const mx = (x0+x1)/2; ctx.fillStyle = T.card; ctx.beginPath(); ctx.arc(mx,yc,13,0,7); ctx.fill(); ctx.beginPath(); ctx.arc(mx,yc,12,0,7); ctx.stroke(); ctx.beginPath(); ctx.moveTo(mx-8,yc+8); ctx.lineTo(mx+8,yc-8); ctx.stroke(); }
+        else { ctx.beginPath(); ctx.moveTo(x1-14,yc-8); ctx.lineTo(x1,yc); ctx.lineTo(x1-14,yc+8); ctx.stroke(); }
+      }
+      const pB = eOut(prog(t, td+0.3, 0.35));
+      ctx.globalAlpha = alpha*pB; ctx.save(); ctx.translate(0,(1-pB)*12);
+      icone(ctx, c.iconeB||"check", 760, y+78, 92, T.cor); textoLabel(c.rotuloB, 760, y+168, T.rotulo); ctx.restore();
+    }
+  } else if (c.tipo === "numero"){
+    const alvo = parseFloat(String(c.valor).replace(/\./g,"").replace(",", "."));
+    const pn = eOut(prog(t, ini+0.1, Math.min(1.2, (fim-ini)*0.5)));
+    let txt = c.valor || "";
+    if (!isNaN(alvo) && /^[\d.,]+$/.test(String(c.valor).trim())){
+      const dec = (String(c.valor).split(",")[1]||"").length;
+      txt = (alvo*pn).toLocaleString("pt-BR",{minimumFractionDigits:dec, maximumFractionDigits:dec});
+    }
+    const tx = (c.prefixo||"") + txt + (c.sufixo||"");
+    icone(ctx, c.icone||"relogio", 214, y+h/2, 104, T.cor);
+    ctx.font = `800 96px ${FONTE}`; ctx.fillStyle = T.cor; ctx.textAlign = "left"; ctx.textBaseline = "alphabetic";
+    ctx.fillText(tx, 300, y+122);
+    ctx.textAlign = "left"; ctx.font = `500 32px ${FONTE}`; ctx.fillStyle = T.rotulo; ctx.fillText(c.rotulo||"", 302, y+178);
+  } else if (c.tipo === "lista"){
+    const itens = (c.itens||[]).filter(Boolean);
+    ctx.font = `700 30px ${FONTE}`; ctx.fillStyle = T.cor; ctx.textAlign = "left"; ctx.textBaseline = "middle";
+    ctx.fillText((c.titulo||"").toUpperCase(), x+44, y+44);
+    itens.forEach((it, i) => {
+      const p = eOut(prog(t, ini+0.3+i*0.35, 0.35)); if (!p) return;
+      ctx.save(); ctx.globalAlpha = alpha*p; ctx.translate((1-p)*-20, 0);
+      const yy = y + 100 + i*72;
+      icone(ctx, c.icone||"check", x+70, yy, 46, T.cor);
+      ctx.font = `600 36px ${FONTE}`; ctx.fillStyle = T.rotulo; ctx.textAlign = "left"; ctx.fillText(it, x+112, yy+2);
+      ctx.restore();
+    });
+  } else if (c.tipo === "alerta"){
+    const pa = eBack(prog(t, ini+0.1, 0.4));
+    ctx.save(); ctx.translate(x+120, y+h/2); ctx.scale(pa,pa); icone(ctx, c.icone||"alerta", 0, 0, 110, T.cor); ctx.restore();
+    ctx.font = `700 40px ${FONTE}`; ctx.fillStyle = T.rotulo; ctx.textAlign = "left"; ctx.textBaseline = "middle";
+    quebrar(c.texto||"", 560, 40).slice(0,3).forEach((l,i,arr) => ctx.fillText(l, x+220, y+h/2 + (i-(arr.length-1)/2)*50));
+  }
+  ctx.restore();
+}
+
+function quebrar(txt, maxW, tam){
+  ctx.font = `700 ${tam}px ${FONTE}`;
+  const pal = txt.split(/\s+/), out = []; let cur = "";
+  for (const p of pal){ const tst = cur ? cur + " " + p : p; if (ctx.measureText(tst).width > maxW && cur){ out.push(cur); cur = p; } else cur = tst; }
+  if (cur) out.push(cur); return out;
+}
+
+function desenharLegenda(t){
+  const lg = S.legendas.find(l => t >= l.t0 && t < l.t1); if (!lg) return;
+  const T = TEMAS[S.estilo.tema], tam = S.estilo.tamLeg;
+  const linhas = lg.texto.split("\n");
+  ctx.font = `800 ${tam}px ${FONTE}`; ctx.textAlign = "center"; ctx.textBaseline = "middle"; ctx.lineJoin = "round";
+  const lh = tam*1.18, y0 = S.estilo.posLeg - (linhas.length-1)*lh/2;
+  linhas.forEach((l,i) => {
+    const y = y0 + i*lh;
+    ctx.shadowColor = "rgba(0,0,0,.6)"; ctx.shadowBlur = 12; ctx.shadowOffsetY = 3;
+    ctx.lineWidth = Math.max(5, tam*0.13); ctx.strokeStyle = T.contorno; ctx.strokeText(l, W/2, y);
+    ctx.shadowColor = "transparent"; ctx.fillStyle = "#FFFFFF"; ctx.fillText(l, W/2, y);
+  });
+}
+
+function desenharLogo(){
+  if (!logoImg) return;
+  const L = S.estilo.logo, tam = L.tam, margem = 40;
+  let x, y;
+  if (L.pos === "inf-esq"){ x = margem; y = H - tam - margem - 80; }
+  else if (L.pos === "inf-dir"){ x = W - tam - margem; y = H - tam - margem - 80; }
+  else if (L.pos === "sup-esq"){ x = margem; y = margem + 40; }
+  else { x = W - tam - margem; y = margem + 40; }
+  const asp = logoImg.width / logoImg.height;
+  const w = asp >= 1 ? tam : tam * asp;
+  const h = asp >= 1 ? tam / asp : tam;
+  ctx.save(); ctx.globalAlpha = L.opac;
+  ctx.drawImage(logoImg, x, y, w, h);
+  ctx.restore();
+}
+
+function render(){
+  const t = vid.currentTime || 0;
+  desenharVideo();
+  desenharLogo();
+  S.cards.forEach(c => desenharCard(c, t));
+  desenharLegenda(t);
+  $("#tempo").textContent = `${fmt(t)} / ${fmt(S.duracao)}`;
+  if (!arrastando) $("#scrub").value = t;
+  marcarAtual(t);
+}
+let arrastando = false, loopOn = false;
+function loop(){ render(); if (!vid.paused || gravando) requestAnimationFrame(loop); else loopOn = false; }
+function iniciarLoop(){ if (!loopOn){ loopOn = true; requestAnimationFrame(loop); } }
+
+/* ===================== Vídeo ===================== */
+$("#arqVideo").onchange = e => {
+  const f = e.target.files[0]; if (!f) return;
+  S.nomeVideo = f.name.replace(/\.[^.]+$/, "");
+  vid.src = URL.createObjectURL(f); vid.load();
+  vid.onloadedmetadata = () => {
+    S.duracao = vid.duration; $("#scrub").max = vid.duration;
+    $("#vazio").style.display = "none";
+    ["#play","#scrub","#transcrever","#exportar"].forEach(s => $(s).disabled = false);
+    $("#infoVideo").textContent = `${f.name}\n${vid.videoWidth}×${vid.videoHeight} · ${fmt(vid.duration)} s · ${(f.size/1048576).toFixed(1)} MB` +
+      (vid.videoWidth < 900 ? "\nAtenção: resolução baixa. O resultado final pode ficar borrado; prefira o arquivo original do celular." : "");
+    $("#infoVideo").className = "status ok"; $("#statusT").textContent = "Pronto para transcrever.";
+    vid.currentTime = 0.01;
+  };
+  vid.onseeked = render;
+};
+$("#play").onclick = () => { if (vid.paused){ vid.play(); $("#play").textContent = "❚❚"; iniciarLoop(); } else { vid.pause(); $("#play").textContent = "▶"; } };
+vid.onended = () => { $("#play").textContent = "▶"; };
+$("#scrub").oninput = e => { arrastando = true; vid.currentTime = +e.target.value; };
+$("#scrub").onchange = () => { arrastando = false; };
+
+/* ===================== Áudio 16 kHz ===================== */
+async function audio16k(){
+  const buf = await (await fetch(vid.src)).arrayBuffer();
+  const ac = new AudioContext(); const dec = await ac.decodeAudioData(buf); ac.close();
+  const off = new OfflineAudioContext(1, Math.ceil(dec.duration*16000), 16000);
+  const src = off.createBufferSource(); src.buffer = dec; src.connect(off.destination); src.start();
+  return (await off.startRendering()).getChannelData(0);
+}
+
+/* ===================== Transcrição ===================== */
+let asr = null, modeloCarregado = "";
+$("#transcrever").onclick = async () => {
+  const st = $("#statusT"), barra = $("#barraT"), btn = $("#transcrever");
+  btn.disabled = true; st.className = "status";
+  try{
+    if ($("#motor").value === "nuvem"){ await transcreverNuvem(st, barra); btn.disabled = false; return; }
+    st.textContent = "Carregando biblioteca de IA…";
+    const { pipeline, env } = await bibliotecaIA();
+    const modelo = $("#modelo").value;
+    if (!asr || modeloCarregado !== modelo){
+      const arq = {};
+      st.textContent = "Baixando modelo (só na primeira vez)…";
+      asr = await pipeline("automatic-speech-recognition", modelo, {
+        dtype: { encoder_model: "fp32", decoder_model_merged: "q4" },
+        device: navigator.gpu ? "webgpu" : "wasm",
+        progress_callback: p => {
+          if (p.status === "progress" && p.total){ arq[p.file] = [p.loaded, p.total];
+            const v = Object.values(arq), l = v.reduce((a,b)=>a+b[0],0), tt = v.reduce((a,b)=>a+b[1],0);
+            barra.style.width = (100*l/tt).toFixed(0) + "%"; st.textContent = `Baixando modelo… ${(l/1048576).toFixed(0)} de ${(tt/1048576).toFixed(0)} MB`; }
+        }
+      }).catch(async e => {
+        st.textContent = "WebGPU indisponível, usando processador…";
+        return pipeline("automatic-speech-recognition", modelo, { device: "wasm" });
+      });
+      modeloCarregado = modelo;
+    }
+    st.textContent = "Extraindo áudio…"; barra.style.width = "100%";
+    const audio = await audio16k();
+    st.textContent = `Transcrevendo ${fmt(audio.length/16000)} s de áudio… (pode levar alguns minutos; a página pode parecer travada)`;
+    await new Promise(r => setTimeout(r, 60));
+    let out, palavras = [];
+    try{
+      out = await asr(audio, { language: "portuguese", task: "transcribe", return_timestamps: "word", chunk_length_s: 30, stride_length_s: 5 });
+      palavras = (out.chunks||[]).map(c => ({w: c.text.trim(), start: c.timestamp[0], end: c.timestamp[1] ?? c.timestamp[0]+0.3})).filter(p => p.w);
+    }catch(e){
+      out = await asr(audio, { language: "portuguese", task: "transcribe", return_timestamps: true, chunk_length_s: 30, stride_length_s: 5 });
+      (out.chunks||[]).forEach(c => { const ws = c.text.trim().split(/\s+/), a = c.timestamp[0], b = c.timestamp[1] ?? a+2, tot = ws.reduce((s,w)=>s+w.length+1,0); let t = a;
+        ws.forEach(w => { const d = (b-a)*(w.length+1)/tot; palavras.push({w, start:t, end:t+d}); t += d; }); });
+    }
+    S.palavras = palavras; montarBlocos();
+    // Aplica glossário automaticamente
+    aplicarGlossarioAuto();
+    // Analisa sugestões de cartões
+    listarSugestoes();
+    st.className = "status ok"; st.textContent = `Transcrição concluída: ${palavras.length} palavras, ${S.legendas.length} blocos. Correções de dicção aplicadas. Veja sugestões de cartões na aba 3.`;
+    render();
+  }catch(e){
+    st.className = "status bad"; st.textContent = "Falha na transcrição: " + (e.message||e) + "\nTente o modelo base, verifique a internet ou importe um SRT.";
+  }
+  btn.disabled = false;
+};
+
+async function bibliotecaIA(){
+  try{
+    const m = await import("./lib/transformers.min.js");
+    m.env.backends.onnx.wasm.wasmPaths = new URL("./lib/", location.href).href;
+    m.env.allowLocalModels = true; m.env.localModelPath = new URL("./modelos/", location.href).href;
+    window.__origemIA = "pacote local"; return m;
+  }catch(e){
+    const m = await import("https://cdn.jsdelivr.net/npm/@huggingface/transformers@3.0.2");
+    m.env.allowLocalModels = false; window.__origemIA = "internet (jsDelivr)"; return m;
+  }
+}
+const PROV = { groq:["https://api.groq.com/openai/v1","whisper-large-v3"], openai:["https://api.openai.com/v1","whisper-1"], outro:["",""] };
+function conexoes(){ return { prov:$("#provedor").value, base:$("#apiBase").value.trim().replace(/\/$/,""), modelo:$("#apiModelo").value.trim(), key:$("#apiKeyT").value.trim() }; }
+function wav16(f32){
+  const n = f32.length, b = new ArrayBuffer(44 + n*2), v = new DataView(b), w = (o,s) => [...s].forEach((c,i)=>v.setUint8(o+i,c.charCodeAt(0)));
+  w(0,"RIFF"); v.setUint32(4,36+n*2,true); w(8,"WAVEfmt "); v.setUint32(16,16,true); v.setUint16(20,1,true); v.setUint16(22,1,true);
+  v.setUint32(24,16000,true); v.setUint32(28,32000,true); v.setUint16(32,2,true); v.setUint16(34,16,true); w(36,"data"); v.setUint32(40,n*2,true);
+  for (let i=0;i<n;i++) v.setInt16(44+i*2, Math.max(-1,Math.min(1,f32[i]))*32767, true);
+  return new Blob([b], {type:"audio/wav"});
+}
+async function chamarNuvem(f32){
+  const c = conexoes(); if (!c.key || !c.base) throw new Error("Configure provedor, endereço e chave na aba Conexões.");
+  const fd = new FormData(); fd.append("file", wav16(f32), "audio.wav"); fd.append("model", c.modelo); fd.append("language","pt");
+  fd.append("response_format","verbose_json"); fd.append("timestamp_granularities[]","word"); fd.append("timestamp_granularities[]","segment");
+  const r = await fetch(c.base + "/audio/transcriptions", { method:"POST", headers:{ Authorization:"Bearer " + c.key }, body: fd });
+  const j = await r.json().catch(()=>({})); if (!r.ok) throw new Error(j.error?.message || ("HTTP " + r.status));
+  return j;
+}
+async function transcreverNuvem(st, barra){
+  st.textContent = "Extraindo áudio…"; const audio = await audio16k();
+  const LIM = 16000*600, partes = []; for (let i=0;i<audio.length;i+=LIM) partes.push([i/16000, audio.subarray(i, i+LIM)]);
+  const palavras = [];
+  for (const [k,[off,pedaco]] of partes.entries()){
+    st.textContent = `Enviando para a nuvem… parte ${k+1} de ${partes.length}`; barra.style.width = (100*k/partes.length)+"%";
+    const j = await chamarNuvem(pedaco);
+    if (j.words?.length) j.words.forEach(w => palavras.push({w:w.word.trim(), start:w.start+off, end:w.end+off}));
+    else (j.segments||[]).forEach(sg => { const ws = sg.text.trim().split(/\s+/), tot = ws.reduce((a,w)=>a+w.length+1,0); let t = sg.start; ws.forEach(w => { const d=(sg.end-sg.start)*(w.length+1)/tot; palavras.push({w, start:t+off, end:t+d+off}); t+=d; }); });
+  }
+  // a API devolve palavras sem pontuação: recupera pela transcrição completa quando possível
+  S.palavras = palavras.filter(p => p.w); montarBlocos(); barra.style.width = "100%";
+  aplicarGlossarioAuto();
+  st.className = "status ok"; st.textContent = `Transcrição em nuvem concluída: ${S.palavras.length} palavras, ${S.legendas.length} blocos. Correções de dicção aplicadas. Revise os textos abaixo.`; render();
+}
+
+function montarBlocos(){
+  const MAXC = +$("#maxC").value || 30, blocos = []; let buf = [];
+  const quebra = txt => { const out = []; let cur = ""; txt.split(/\s+/).forEach(p => { if ((cur+" "+p).trim().length > MAXC && cur){ out.push(cur); cur = p; } else cur = (cur+" "+p).trim(); }); out.push(cur); return out.slice(0,2).join("\n") + (out.length > 2 ? " " + out.slice(2).join(" ") : ""); };
+  S.palavras.forEach((w,i) => {
+    buf.push(w); const txt = buf.map(x=>x.w).join(" "), prox = S.palavras[i+1];
+    const cheio = txt.length > MAXC*2 - 8, pont = /[.?!,;:]$/.test(w.w) && txt.length > 18, pausa = prox && prox.start - w.end > 0.45;
+    if (cheio || pont || pausa || !prox){ blocos.push({t0:+buf[0].start.toFixed(2), t1:+w.end.toFixed(2), texto: quebra(txt)}); buf = []; }
+  });
+  for (let i = 0; i < blocos.length-1; i++) if (blocos[i+1].t0 - blocos[i].t1 < 0.6) blocos[i].t1 = blocos[i+1].t0;
+  S.legendas = blocos; listarLegendas();
+}
+
+$("#refazerBlocos").onclick = () => {
+  if (!S.palavras.length){ S.palavras = []; S.legendas.forEach(l => { const ws = l.texto.split(/\s+/), tot = ws.reduce((s,w)=>s+w.length+1,0); let t = l.t0; ws.forEach(w => { const d = (l.t1-l.t0)*(w.length+1)/tot; S.palavras.push({w, start:t, end:t+d}); t += d; }); }); }
+  montarBlocos(); render();
+};
+function aplicarGlossarioAuto(){
+  const regras = $("#glossario").value.split("\n").map(l => l.split("=").map(s=>s.trim())).filter(r => r.length === 2 && r[0]);
+  const esc = s => s.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+  let n = 0;
+  regras.forEach(([a,b]) => { const re = new RegExp(`(^|[^\\p{L}])${esc(a)}(?=$|[^\\p{L}])`, "giu");
+    S.legendas.forEach(l => { l.texto = l.texto.replace(re, (m,p) => { n++; return p + b; }); });
+    S.palavras.forEach(p => { if (p.w.toLowerCase().replace(/[.,!?;:]/g,"") === a.toLowerCase()) p.w = p.w.replace(new RegExp(esc(a),"i"), b); }); });
+  listarLegendas();
+  return n;
+}
+$("#aplicarGloss").onclick = () => {
+  const n = aplicarGlossarioAuto();
+  store.set("em_glossario", $("#glossario").value);
+  render(); alert(`${n} substituição(ões) aplicada(s).`);
+};
+const GLOSSARIO_SEGUROS = `polícia = apólice
+police = apólice
+pânico = pane
+panico = pane
+sinistros = sinistro
+segurada = segurado
+ressarcimentos = ressarcimento
+franquiada = franquia
+coparticipação = co-participação
+casco = casco
+roubo = roubo/furto`;
+$("#glossario").value = store.get("em_glossario") || GLOSSARIO_SEGUROS;
+
+$("#arqSrt").onchange = async e => {
+  const f = e.target.files[0]; if (!f) return; const txt = await f.text();
+  const ts = s => { const m = s.trim().replace(",", ".").split(":"); return m.length === 3 ? +m[0]*3600 + +m[1]*60 + +m[2] : +m[0]*60 + +m[1]; };
+  S.legendas = txt.replace(/\r/g,"").split(/\n\n+/).map(b => { const l = b.split("\n"), i = l.findIndex(x => x.includes("-->")); if (i < 0) return null;
+    const [a, z] = l[i].split("-->"); return {t0: +ts(a).toFixed(2), t1: +ts(z.split(" ")[1] ? z.trim().split(" ")[0] : z).toFixed(2), texto: l.slice(i+1).join("\n").trim()}; }).filter(Boolean);
+  S.palavras = []; listarLegendas(); render();
+  $("#statusT").className = "status ok"; $("#statusT").textContent = `${S.legendas.length} blocos importados do arquivo.`;
+};
+
+function listarLegendas(){
+  $("#contLeg").textContent = `(${S.legendas.length})`;
+  $("#listaLeg").innerHTML = S.legendas.map((l,i) => `<div class="item" data-i="${i}">
+    <div class="t"><input type="number" step="0.05" value="${l.t0}" data-k="t0">–<input type="number" step="0.05" value="${l.t1}" data-k="t1"></div>
+    <textarea data-k="texto">${l.texto.replace(/</g,"&lt;")}</textarea>
+    <div style="display:flex;flex-direction:column;gap:4px"><button data-ir="${i}" title="Ir para">▶</button><button data-del="${i}" title="Remover">✕</button></div></div>`).join("");
+}
+$("#listaLeg").addEventListener("input", e => { const it = e.target.closest(".item"); if (!it) return; const l = S.legendas[+it.dataset.i], k = e.target.dataset.k;
+  l[k] = k === "texto" ? e.target.value : +e.target.value; render(); });
+$("#listaLeg").addEventListener("click", e => { if (e.target.dataset.ir){ vid.currentTime = S.legendas[+e.target.dataset.ir].t0 + 0.01; }
+  if (e.target.dataset.del){ S.legendas.splice(+e.target.dataset.del, 1); listarLegendas(); render(); } });
+let ultimoAtual = -1;
+function marcarAtual(t){ const i = S.legendas.findIndex(l => t >= l.t0 && t < l.t1); if (i === ultimoAtual) return; ultimoAtual = i;
+  document.querySelectorAll("#listaLeg .item").forEach(el => el.classList.toggle("atual", +el.dataset.i === i)); }
+
+/* ===================== Cartões ===================== */
+const NOMES_ICONES = Object.keys(ICONES);
+const optIcones = sel => NOMES_ICONES.map(n => `<option ${n===sel?"selected":""}>${n}</option>`).join("");
+function novoCard(tipo){
+  const t = +(vid.currentTime||0).toFixed(2), base = {tipo, t0:t, t1:+(t+3.5).toFixed(2)};
+  if (tipo === "relacao") Object.assign(base, {iconeA:"chave", rotuloA:"Assunto", relacao:"seta", td:+(t+1.5).toFixed(2), iconeB:"check", rotuloB:"Consequência"});
+  if (tipo === "numero") Object.assign(base, {icone:"relogio", valor:"15", prefixo:"", sufixo:" dias", rotulo:"Descrição do número"});
+  if (tipo === "lista") Object.assign(base, {titulo:"Título", icone:"check", itens:["Item 1","Item 2","Item 3"], t1:+(t+5).toFixed(2)});
+  if (tipo === "alerta") Object.assign(base, {icone:"alerta", texto:"Frase curta de atenção"});
+  return base;
+}
+document.querySelectorAll("[data-novo]").forEach(b => b.onclick = () => { S.cards.push(novoCard(b.dataset.novo)); S.cards.sort((a,b)=>a.t0-b.t0); listarCards(); render(); });
+
+/* ===================== Sugestões automáticas ===================== */
+function analisarTranscricao(){
+  const sug = [];
+  const texto = S.legendas.map(l => ({t0:l.t0, t1:l.t1, txt:l.texto.replace(/\n/g," ")}));
+
+  // Detectar números (15 dias, 30%, R$ 500, 3 anos, etc.)
+  const reNum = /(\d+[\d.,]*)\s*(dias?|anos?|meses?|%|reais?|r\$|horas?|minutos?|vezes|parcelas?)/gi;
+  texto.forEach(l => {
+    let m; while((m = reNum.exec(l.txt)) !== null){
+      const valor = m[1], unidade = m[2].toLowerCase();
+      const icone = unidade.includes("dia") || unidade.includes("hora") || unidade.includes("ano") || unidade.includes("mes") ? "relogio" :
+                    unidade.includes("%") ? "porcentagem" : "dinheiro";
+      sug.push({tipo:"numero", t0:l.t0, t1:l.t1+2, icone, valor, sufixo:" "+m[2], rotulo:"", preview:`${valor} ${m[2]}`, conf:"alta"});
+    }
+  });
+
+  // Detectar relações (direito a, não tem direito, causa, gera, resulta)
+  const reRel = /(não\s+)?(tem|dá|gera|causa|resulta|garante|cobre)\s+(direito\s+a|acesso\s+a|cobertura|indenização)/gi;
+  texto.forEach(l => {
+    if(reRel.test(l.txt)){
+      const nega = /não\s+(tem|dá|gera)/i.test(l.txt);
+      sug.push({tipo:"relacao", t0:l.t0, t1:l.t1+2, relacao:nega?"nega":"seta",
+        rotuloA:"Situação", rotuloB:nega?"Sem direito":"Com direito",
+        iconeA:"doc-ok", iconeB:nega?"x":"check", preview:l.txt.slice(0,50)+"...", conf:"media"});
+    }
+  });
+
+  // Detectar alertas (atenção, cuidado, importante, lembre-se)
+  const reAlert = /(atenção|cuidado|importante|lembre-se|não\s+esqueça|fique\s+atento)/gi;
+  texto.forEach(l => {
+    if(reAlert.test(l.txt)){
+      sug.push({tipo:"alerta", t0:l.t0, t1:l.t1+2, icone:"alerta", texto:l.txt.slice(0,40), preview:l.txt.slice(0,50)+"...", conf:"alta"});
+    }
+  });
+
+  // Detectar listas (primeiro, segundo, três coisas, etc.)
+  const reLista = /(primeiro|segundo|terceiro|quarto|três\s+coisas|quatro\s+pontos|alguns\s+pontos)/gi;
+  texto.forEach(l => {
+    if(reLista.test(l.txt)){
+      sug.push({tipo:"lista", t0:l.t0, t1:l.t1+4, titulo:"Pontos importantes", itens:["Item 1","Item 2","Item 3"], preview:l.txt.slice(0,50)+"...", conf:"media"});
+    }
+  });
+
+  return sug.slice(0,10); // máximo 10 sugestões
+}
+
+function listarSugestoes(){
+  const sug = analisarTranscricao();
+  const NT = {relacao:"Relação", numero:"Número", lista:"Lista", alerta:"Alerta"};
+  const CONF = {alta:"🟢", media:"🟡"};
+
+  if(!sug.length){
+    $("#sugestoesAuto").innerHTML = `<p class="d">Nenhuma sugestão encontrada. Faça a transcrição primeiro ou crie cartões manualmente.</p>`;
+    return;
+  }
+
+  $("#sugestoesAuto").innerHTML = sug.map((s,i) => `
+    <div class="item" style="cursor:pointer;grid-template-columns:auto 1fr auto" data-sug="${i}">
+      <span>${CONF[s.conf]||"🟡"} <b>${NT[s.tipo]}</b></span>
+      <span style="color:var(--muted);font-size:13px">${s.preview || s.valor || s.texto || ""}</span>
+      <span style="font-size:12px;color:var(--muted)">${s.t0.toFixed(1)}s</span>
+    </div>
+  `).join("");
+
+  // Salvar sugestões para usar no click
+  window._sugestoes = sug;
+}
+
+$("#sugestoesAuto").onclick = e => {
+  const item = e.target.closest("[data-sug]");
+  if(!item || !window._sugestoes) return;
+  const s = window._sugestoes[+item.dataset.sug];
+  const card = {...novoCard(s.tipo), ...s};
+  delete card.preview; delete card.conf;
+  S.cards.push(card);
+  S.cards.sort((a,b)=>a.t0-b.t0);
+  listarCards(); render();
+  item.style.opacity = "0.4";
+  item.style.pointerEvents = "none";
+};
+
+$("#analisarTranscricao").onclick = listarSugestoes;
+
+const campo = (rot, k, v, tipo="text", extra="") => `<label class="f">${rot}<input type="${tipo}" ${tipo==="number"?'step="0.05"':""} data-k="${k}" value="${String(v??"").replace(/"/g,"&quot;")}" ${extra}></label>`;
+const sel = (rot, k, opts) => `<label class="f">${rot}<select data-k="${k}">${opts}</select></label>`;
+const agora = k => `<button data-agora="${k}" title="Usar o tempo atual">agora</button>`;
+function listarCards(){
+  const NT = {relacao:"Relação", numero:"Número", lista:"Lista", alerta:"Alerta"};
+  $("#contCard").textContent = `(${S.cards.length})`;
+  $("#listaCard").innerHTML = S.cards.map((c,i) => {
+    let corpo = "";
+    if (c.tipo === "relacao") corpo = `<div class="grid3">${sel("Ícone A","iconeA",optIcones(c.iconeA))}${campo("Rótulo A","rotuloA",c.rotuloA)}
+      ${sel("Relação","relacao",`<option value="seta" ${c.relacao==="seta"?"selected":""}>→ leva a</option><option value="nega" ${c.relacao==="nega"?"selected":""}>⊘ não dá direito a</option>`)}
+      ${sel("Ícone B","iconeB",optIcones(c.iconeB))}${campo("Rótulo B","rotuloB",c.rotuloB)}<div class="linha">${campo("B entra em (s)","td",c.td,"number")}${agora("td")}</div></div>`;
+    if (c.tipo === "numero") corpo = `<div class="grid3">${sel("Ícone","icone",optIcones(c.icone))}${campo("Prefixo","prefixo",c.prefixo)}${campo("Valor","valor",c.valor)}${campo("Sufixo","sufixo",c.sufixo)}${campo("Descrição","rotulo",c.rotulo)}</div>`;
+    if (c.tipo === "lista") corpo = `<div class="grid3">${campo("Título","titulo",c.titulo)}${sel("Ícone","icone",optIcones(c.icone))}</div>
+      <label class="f">Itens (um por linha, até 4)<textarea data-k="itens" rows="3">${(c.itens||[]).join("\n")}</textarea></label>`;
+    if (c.tipo === "alerta") corpo = `<div class="grid3">${sel("Ícone","icone",optIcones(c.icone))}${campo("Texto","texto",c.texto)}</div>`;
+    return `<div class="card-ed" data-i="${i}"><div class="topo"><strong>${i+1}. ${NT[c.tipo]}</strong>
+      ${campo("Início","t0",c.t0,"number",'style="width:90px"')}${agora("t0")}${campo("Fim","t1",c.t1,"number",'style="width:90px"')}${agora("t1")}
+      <button data-ir="${i}">▶</button><button data-del="${i}">✕</button></div>${corpo}</div>`;
+  }).join("") || `<p class="d">Nenhum cartão ainda.</p>`;
+}
+$("#listaCard").addEventListener("input", e => { const ed = e.target.closest(".card-ed"); if (!ed || !e.target.dataset.k) return;
+  const c = S.cards[+ed.dataset.i], k = e.target.dataset.k;
+  c[k] = k === "itens" ? e.target.value.split("\n").slice(0,4) : (e.target.type === "number" ? +e.target.value : e.target.value); render(); });
+$("#listaCard").addEventListener("click", e => { const ed = e.target.closest(".card-ed"); if (!ed) return; const i = +ed.dataset.i;
+  if (e.target.dataset.agora){ S.cards[i][e.target.dataset.agora] = +vid.currentTime.toFixed(2); listarCards(); render(); }
+  if (e.target.dataset.ir){ vid.currentTime = S.cards[i].t0 + 0.01; }
+  if (e.target.dataset.del){ S.cards.splice(i,1); listarCards(); render(); } });
+
+/* ===================== IA (opcional) ===================== */
+$("#apiKey").value = store.get("em_key") || "";
+$("#sugerir").onclick = async () => {
+  const st = $("#statusIA"); st.style.display = "block"; st.className = "status";
+  const key = $("#apiKey").value.trim(); if (!key){ st.className = "status bad"; st.textContent = "Informe a chave da API."; return; }
+  if (!S.legendas.length){ st.className = "status bad"; st.textContent = "Faça a transcrição antes."; return; }
+  store.set("em_key", key); st.textContent = "Consultando o Claude…";
+  const roteiro = S.legendas.map(l => `[${l.t0}-${l.t1}] ${l.texto.replace(/\n/g," ")}`).join("\n");
+  const prompt = `Você é editor de vídeos curtos. Abaixo está a fala de um vídeo vertical com tempos em segundos (duração ${fmt(S.duracao)} s).
+Proponha cartões visuais que reforcem as ideias principais: no máximo 1 a cada 8 segundos, sem sobreposição, intervalo mínimo de 2 s entre cartões, duração de 3 a 8 s.
+Tipos permitidos:
+- relacao: {"tipo":"relacao","t0","t1","iconeA","rotuloA","relacao":"seta"|"nega","td","iconeB","rotuloB"} — use "nega" quando A NÃO dá direito/acesso a B; td = momento em que a fala conclui a relação (t0 < td < t1-1).
+- numero: {"tipo":"numero","t0","t1","icone","prefixo","valor","sufixo","rotulo"} — valor só com dígitos (ex. "15"), prefixo/sufixo ex. "R$ " ou " dias".
+- lista: {"tipo":"lista","t0","t1","titulo","icone","itens":[2 a 4 itens curtos]}
+- alerta: {"tipo":"alerta","t0","t1","icone","texto"} — frase de até 8 palavras.
+Rótulos com 1 a 3 palavras, em português, com a grafia correta dos termos. Ícones permitidos: ${NOMES_ICONES.join(", ")}.
+Responda SOMENTE com um array JSON, sem texto antes ou depois.
+
+FALA:
+${roteiro}`;
+  try{
+    const r = await fetch("https://api.anthropic.com/v1/messages", { method:"POST",
+      headers: {"content-type":"application/json","x-api-key":key,"anthropic-version":"2023-06-01","anthropic-dangerous-direct-browser-access":"true"},
+      body: JSON.stringify({ model:"claude-sonnet-5-5", max_tokens:3000, messages:[{role:"user", content:prompt}] }) });
+    const j = await r.json(); if (!r.ok) throw new Error(j.error?.message || r.status);
+    const txt = j.content.map(c => c.text||"").join("").replace(/```json|```/g,"").trim();
+    const arr = JSON.parse(txt.slice(txt.indexOf("["), txt.lastIndexOf("]")+1));
+    S.cards = arr.filter(c => ["relacao","numero","lista","alerta"].includes(c.tipo)).map(c => ({...c, t0:+c.t0, t1:+c.t1, ...(c.td!=null?{td:+c.td}:{})})).sort((a,b)=>a.t0-b.t0);
+    listarCards(); render(); st.className = "status ok"; st.textContent = `${S.cards.length} cartões sugeridos. Revise rótulos e tempos.`;
+  }catch(e){ st.className = "status bad"; st.textContent = "Erro: " + (e.message||e); }
+};
+
+/* ===================== Estilo ===================== */
+function listarTemas(){
+  $("#temas").innerHTML = Object.entries(TEMAS).map(([k,t]) => `<button class="tema ${k===S.estilo.tema?"on":""}" data-tema="${k}">
+    <div class="amostra" style="background:${t.card};color:${t.rotulo};border:1px solid ${t.borda}"><i style="background:${t.cor}"></i>Pane ⊘ Reserva</div><b>${t.nome}</b></button>`).join("");
+}
+$("#temas").onclick = e => { const b = e.target.closest("[data-tema]"); if (!b) return; S.estilo.tema = b.dataset.tema; listarTemas(); render(); };
+[["#tamLeg","tamLeg"],["#posLeg","posLeg"],["#posCard","posCard"],["#brilho","brilho"]].forEach(([s,k]) => $(s).oninput = e => { S.estilo[k] = +e.target.value; render(); });
+/* ===================== Logo ===================== */
+$("#arqLogo").onchange = e => {
+  const f = e.target.files[0]; if (!f) return;
+  const img = new Image();
+  img.onload = () => { logoImg = img; $("#infoLogo").textContent = `${f.name} (${img.width}×${img.height})`; $("#infoLogo").className = "status ok"; render(); };
+  img.onerror = () => { $("#infoLogo").textContent = "Erro ao carregar imagem."; $("#infoLogo").className = "status bad"; };
+  img.src = URL.createObjectURL(f);
+};
+$("#removerLogo").onclick = () => { logoImg = null; $("#infoLogo").textContent = "Nenhuma logo carregada."; $("#infoLogo").className = "status"; render(); };
+$("#posLogo").onchange = e => { S.estilo.logo.pos = e.target.value; render(); };
+$("#tamLogo").oninput = e => { S.estilo.logo.tam = +e.target.value; render(); };
+$("#opacLogo").oninput = e => { S.estilo.logo.opac = +e.target.value; render(); };
+function aplicarEstiloUI(){ $("#tamLeg").value = S.estilo.tamLeg; $("#posLeg").value = S.estilo.posLeg; $("#posCard").value = S.estilo.posCard; $("#brilho").value = S.estilo.brilho;
+  if (S.estilo.logo){ $("#posLogo").value = S.estilo.logo.pos||"inf-esq"; $("#tamLogo").value = S.estilo.logo.tam||120; $("#opacLogo").value = S.estilo.logo.opac||0.85; }
+  listarTemas(); }
+
+/* ===================== Exportação ===================== */
+const MIMES = ["video/mp4;codecs=avc1.640028,mp4a.40.2","video/mp4;codecs=avc1.42E01F,mp4a.40.2","video/mp4","video/webm;codecs=vp9,opus","video/webm;codecs=vp8,opus","video/webm"];
+const MIME = MIMES.find(m => window.MediaRecorder && MediaRecorder.isTypeSupported(m)) || "";
+$("#statusE").textContent = MIME ? `Formato de saída: ${MIME.startsWith("video/mp4") ? "MP4 (pronto para Instagram)" : "WebM (converta para MP4 antes de publicar)"}` : "Este navegador não grava vídeo. Use Chrome ou Edge atualizados.";
+let gravando = false, audioCtx, audioDest;
+$("#exportar").onclick = async () => {
+  if (!MIME) return;
+  const btn = $("#exportar"), st = $("#statusE"), barra = $("#barraE");
+  btn.disabled = true; gravando = true; st.className = "status";
+  if (!audioCtx){ audioCtx = new AudioContext(); const src = audioCtx.createMediaElementSource(vid); audioDest = audioCtx.createMediaStreamDestination(); src.connect(audioDest); src.connect(audioCtx.destination); }
+  await audioCtx.resume();
+  const stream = new MediaStream([...cv.captureStream(30).getVideoTracks(), ...audioDest.stream.getAudioTracks()]);
+  const rec = new MediaRecorder(stream, { mimeType: MIME, videoBitsPerSecond: +$("#bitrate").value, audioBitsPerSecond: 192000 });
+  const partes = []; rec.ondataavailable = e => e.data.size && partes.push(e.data);
+  const fim = new Promise(r => rec.onstop = r);
+  vid.pause(); vid.currentTime = 0; await new Promise(r => vid.onseeked = () => { vid.onseeked = render; r(); });
+  render(); rec.start(500); await vid.play(); iniciarLoop();
+  const acomp = setInterval(() => { barra.style.width = (100*vid.currentTime/S.duracao).toFixed(1)+"%"; st.textContent = `Gravando… ${fmt(vid.currentTime)} de ${fmt(S.duracao)} s. Não troque de aba.`; }, 250);
+  await new Promise(r => vid.addEventListener("ended", r, {once:true}));
+  render(); await new Promise(r => setTimeout(r, 300)); rec.stop(); await fim; clearInterval(acomp);
+  gravando = false; barra.style.width = "100%";
+  const blob = new Blob(partes, {type: MIME.split(";")[0]}), ext = MIME.startsWith("video/mp4") ? "mp4" : "webm";
+  const a = document.createElement("a"); a.href = URL.createObjectURL(blob); a.download = `${S.nomeVideo||"video"}_motion_9x16.${ext}`; a.click();
+  st.className = "status ok"; st.textContent = `Pronto: ${a.download} (${(blob.size/1048576).toFixed(1)} MB) baixado.`;
+  btn.disabled = false; $("#play").textContent = "▶";
+};
+$("#gerarPost").onclick = () => {
+  const frases = S.legendas.map(l => l.texto.replace(/\n/g," ")).join(" ").split(/(?<=[.?!])\s+/).filter(f => f.length > 25).slice(0,2);
+  const temas = [...new Set(S.cards.flatMap(c => [c.rotuloA, c.rotuloB, c.titulo, c.rotulo]).filter(Boolean))].slice(0,5);
+  $("#post").value = `${frases.join(" ")}\n\n${temas.length ? "Neste vídeo: " + temas.join(" · ") + ".\n\n" : ""}Salve para consultar depois e compartilhe com quem precisa saber.\n\n${temas.map(t => "#" + t.normalize("NFD").replace(/[\u0300-\u036f]/g,"").replace(/[^\w]/g,"").toLowerCase()).join(" ")}`;
+};
+$("#copiarPost").onclick = () => navigator.clipboard.writeText($("#post").value);
+
+/* ===================== Projeto ===================== */
+$("#salvarProj").onclick = () => {
+  const dados = JSON.stringify({versao:1, nomeVideo:S.nomeVideo, legendas:S.legendas, palavras:S.palavras, cards:S.cards, estilo:S.estilo}, null, 1);
+  const a = document.createElement("a"); a.href = URL.createObjectURL(new Blob([dados], {type:"application/json"})); a.download = `${S.nomeVideo||"projeto"}_motion.json`; a.click();
+};
+$("#abrirProj").onchange = async e => {
+  const f = e.target.files[0]; if (!f) return;
+  try{ const d = JSON.parse(await f.text()); Object.assign(S, {legendas:d.legendas||[], palavras:d.palavras||[], cards:d.cards||[]}); Object.assign(S.estilo, d.estilo||{});
+    listarLegendas(); listarCards(); aplicarEstiloUI(); render(); alert("Projeto carregado. Abra o vídeo correspondente, se ainda não abriu."); }
+  catch(err){ alert("Arquivo de projeto inválido."); }
+};
+
+/* ===================== Abas ===================== */
+$("#abas").onclick = e => { const b = e.target.closest("button[data-a]"); if (!b) return;
+  document.querySelectorAll("#abas button").forEach(x => x.classList.toggle("on", x === b));
+  document.querySelectorAll(".aba").forEach(a => a.classList.toggle("on", a.id === b.dataset.a)); };
+
+/* ===================== Modo Compacto ===================== */
+const ABAS_AVANCADAS = ["a2","a3","a4"];
+$("#modoCompacto").onchange = e => {
+  const compacto = e.target.checked;
+  store.set("em_compacto", compacto ? "1" : "");
+  document.querySelectorAll("#abas button").forEach(b => {
+    if (ABAS_AVANCADAS.includes(b.dataset.a)) b.style.display = compacto ? "none" : "";
+  });
+  // Se estava numa aba avançada, volta para a1
+  if (compacto && ABAS_AVANCADAS.some(a => $(`#${a}`).classList.contains("on"))){
+    $('[data-a="a1"]').click();
+  }
+};
+// Restaurar estado
+if (store.get("em_compacto")){ $("#modoCompacto").checked = true; $("#modoCompacto").dispatchEvent(new Event("change")); }
+
+/* ===================== Conexões ===================== */
+function carregarCon(){ let c = {}; try{ c = JSON.parse(store.get("em_con")||"{}"); }catch(e){}
+  $("#provedor").value = c.prov || "groq"; $("#apiBase").value = c.base || PROV[$("#provedor").value][0]; $("#apiModelo").value = c.modelo || PROV[$("#provedor").value][1]; $("#apiKeyT").value = c.key || "";
+  if (c.key) $("#motor").value = store.get("em_motor") || "local"; }
+$("#provedor").onchange = () => { const [b,m] = PROV[$("#provedor").value]; $("#apiBase").value = b; $("#apiModelo").value = m; };
+$("#motor").onchange = () => store.set("em_motor", $("#motor").value);
+$("#salvarCon").onclick = () => { store.set("em_con", JSON.stringify(conexoes())); const st = $("#statusCon"); st.style.display="block"; st.className="status ok"; st.textContent="Conexões salvas neste computador."; };
+$("#testarCon").onclick = async () => { const st = $("#statusCon"); st.style.display="block"; st.className="status"; st.textContent="Testando com 1 s de silêncio…";
+  try{ await chamarNuvem(new Float32Array(16000)); st.className="status ok"; st.textContent="Conexão funcionando. Escolha 'Nuvem' como motor na aba Transcrição."; store.set("em_con", JSON.stringify(conexoes())); }
+  catch(e){ st.className="status bad"; st.textContent="Falhou: " + (e.message||e) + (String(e).includes("fetch") ? "\nPossível bloqueio de rede/firewall ou CORS do provedor." : ""); } };
+$("#diagnosticar").onclick = async () => {
+  const L = [], add = (ok, nome, det) => L.push(`<div class="item" style="grid-template-columns:28px 220px 1fr"><b style="color:${ok===true?"var(--ok)":ok===false?"var(--bad)":"var(--muted)"}">${ok===true?"✓":ok===false?"✕":"–"}</b><b>${nome}</b><span>${det}</span></div>`);
+  const nav = navigator.userAgent; add(/Chrome|Edg/.test(nav), "Navegador", /Electron/.test(nav) ? "Aplicativo Estúdio Motion (Chromium)" : (/Edg/.test(nav) ? "Edge" : /Chrome/.test(nav) ? "Chrome" : "Use Chrome ou Edge"));
+  add(!!MIME, "Gravação de vídeo", MIME ? (MIME.startsWith("video/mp4") ? "MP4" : "WebM (precisa converter)") : "Indisponível");
+  add(!!navigator.gpu || null, "Aceleração WebGPU", navigator.gpu ? "Disponível (transcrição local mais rápida)" : "Ausente — transcrição local usa só o processador");
+  add(null, "Memória", navigator.deviceMemory ? `≈ ${navigator.deviceMemory} GB ${navigator.deviceMemory < 8 ? "(prefira modelo base ou nuvem)" : ""}` : "não informada");
+  let local = false; try{ local = (await fetch("./lib/transformers.min.js", {method:"HEAD"})).ok; }catch(e){}
+  add(local || null, "Biblioteca de IA no pacote", local ? "Presente (não depende do jsDelivr)" : "Ausente — será baixada da internet");
+  let cdn = false; try{ cdn = (await fetch("https://cdn.jsdelivr.net/npm/@huggingface/transformers@3.0.2/package.json")).ok; }catch(e){}
+  add(cdn || (local ? null : false), "Acesso ao jsDelivr", cdn ? "OK" : "Bloqueado/sem internet");
+  let hf = false; try{ hf = (await fetch("https://huggingface.co/onnx-community/whisper-base/resolve/main/config.json")).ok; }catch(e){}
+  add(hf, "Acesso ao Hugging Face (modelos)", hf ? "OK" : "Bloqueado/sem internet — use modelos do pacote ou a nuvem");
+  let cache = false; try{ const c = await caches.open("transformers-cache"); cache = (await c.keys()).length > 0; }catch(e){}
+  add(cache || null, "Modelo em cache", cache ? "Já baixado — transcrição local funciona offline" : "Ainda não baixado");
+  const c = conexoes(); add(c.key ? true : null, "Transcrição em nuvem", c.key ? `${c.prov} · ${c.modelo}` : "Não configurada (opcional)");
+  add($("#apiKey").value ? true : null, "Claude (cartões)", $("#apiKey").value ? "Chave salva" : "Não configurado (opcional)");
+  $("#diag").innerHTML = L.join("");
+};
+$("#prebaixar").onclick = async () => { const st = $("#statusCon"); st.style.display="block"; st.className="status";
+  try{ st.textContent = "Baixando biblioteca e modelo…"; const { pipeline } = await bibliotecaIA();
+    await pipeline("automatic-speech-recognition", $("#modelo").value, { device: navigator.gpu ? "webgpu" : "wasm", dtype:{encoder_model:"fp32", decoder_model_merged:"q4"},
+      progress_callback: p => { if (p.status==="progress") st.textContent = `Baixando ${p.file}: ${Math.round(p.progress||0)}%`; } });
+    st.className="status ok"; st.textContent = "Modelo pronto e guardado. A transcrição local agora funciona sem internet."; }
+  catch(e){ st.className="status bad"; st.textContent = "Falhou: " + (e.message||e); } };
+carregarCon();
+
+aplicarEstiloUI(); listarLegendas(); listarCards(); render();
+
+// Registrar Service Worker para PWA
+if ("serviceWorker" in navigator && !window.require) {
+  navigator.serviceWorker.register("./sw.js").catch(() => {});
+}
+</script>
+</body>
+</html>
